@@ -167,26 +167,27 @@ city_co_08758,08758,SOLEDAD,base.state_co_02,base.co
 city_co_08770,08770,SUAN,base.state_co_02,base.co
 city_co_08832,08832,TUBARA,base.state_co_02,base.co
 city_co_08849,08849,USIACURI,base.state_co_02,base.co
-city_co_11001,11001,LOCALIDAD ANTONIO NARIÑO,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD BARRIOS UNIDOS,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD BOSA,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD CANDELARIA,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD CHAPINERO,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD CIUDAD BOLIVAR,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD ENGATIVA,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD FONTIBON,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD KENNEDY,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD LOS MARTIRES,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD PUENTE ARANDA,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD RAFAEL URIBE URIBE,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD SAN CRISTOBAL,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD SANTA FE,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD SUBA,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD SUMAPAZ,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD TEUSAQUILLO,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD TUNJUELITO,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD USAQUEN,base.state_co_03,base.co
-city_co_11001,11001,LOCALIDAD USME,base.state_co_03,base.co
+city_co_11001,11001,"BOGOTÁ, D.C.",base.state_co_03,base.co
+city_co_11001_01,11001,LOCALIDAD ANTONIO NARIÑO,base.state_co_03,base.co
+city_co_11001_02,11001,LOCALIDAD BARRIOS UNIDOS,base.state_co_03,base.co
+city_co_11001_03,11001,LOCALIDAD BOSA,base.state_co_03,base.co
+city_co_11001_04,11001,LOCALIDAD CANDELARIA,base.state_co_03,base.co
+city_co_11001_05,11001,LOCALIDAD CHAPINERO,base.state_co_03,base.co
+city_co_11001_06,11001,LOCALIDAD CIUDAD BOLIVAR,base.state_co_03,base.co
+city_co_11001_07,11001,LOCALIDAD ENGATIVA,base.state_co_03,base.co
+city_co_11001_08,11001,LOCALIDAD FONTIBON,base.state_co_03,base.co
+city_co_11001_09,11001,LOCALIDAD KENNEDY,base.state_co_03,base.co
+city_co_11001_10,11001,LOCALIDAD LOS MARTIRES,base.state_co_03,base.co
+city_co_11001_11,11001,LOCALIDAD PUENTE ARANDA,base.state_co_03,base.co
+city_co_11001_12,11001,LOCALIDAD RAFAEL URIBE URIBE,base.state_co_03,base.co
+city_co_11001_13,11001,LOCALIDAD SAN CRISTOBAL,base.state_co_03,base.co
+city_co_11001_14,11001,LOCALIDAD SANTA FE,base.state_co_03,base.co
+city_co_11001_15,11001,LOCALIDAD SUBA,base.state_co_03,base.co
+city_co_11001_16,11001,LOCALIDAD SUMAPAZ,base.state_co_03,base.co
+city_co_11001_17,11001,LOCALIDAD TEUSAQUILLO,base.state_co_03,base.co
+city_co_11001_18,11001,LOCALIDAD TUNJUELITO,base.state_co_03,base.co
+city_co_11001_19,11001,LOCALIDAD USAQUEN,base.state_co_03,base.co
+city_co_11001_20,11001,LOCALIDAD USME,base.state_co_03,base.co
 city_co_13006,13006,ACHI,base.state_co_04,base.co
 city_co_13030,13030,ALTOS DEL ROSARIO,base.state_co_04,base.co
 city_co_13042,13042,ARENAL,base.state_co_04,base.co
