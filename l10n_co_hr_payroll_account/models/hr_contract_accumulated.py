@@ -19,4 +19,4 @@ class HrContractAccumulated(models.Model):
                                   string='Contract',
                                   required=True,
                                   ondelete='cascade',
-                                  select=True)
+                                  index=True)

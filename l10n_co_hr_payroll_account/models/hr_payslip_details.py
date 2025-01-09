@@ -12,7 +12,7 @@ class HrPayslipDetails(models.Model):
                               string='Payroll',
                               required=True,
                               ondelete='cascade',
-                              select=True)
+                              index=True)
     salary_rule_id = fields.Many2one(comodel_name='hr.salary.rule',
                                      string='Salary Rule',
                                      required=True)

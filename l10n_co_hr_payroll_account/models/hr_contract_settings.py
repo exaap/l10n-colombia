@@ -11,7 +11,7 @@ class HrContractSetting(models.Model):
                                   string='Contract',
                                   required=True,
                                   ondelete='cascade',
-                                  select=True)
+                                  index=True)
     contrib_id = fields.Many2one(comodel_name='hr.contribution.register',
                                  string='Concept',
                                  help="Contribution concept")

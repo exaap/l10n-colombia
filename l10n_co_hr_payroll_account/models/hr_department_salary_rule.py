@@ -11,7 +11,7 @@ class HrDepartmentSalaryRule(models.Model):
                                     string='Departament',
                                     required=True,
                                     ondelete='cascade',
-                                    select=True)
+                                    index=True)
     salary_rule_id = fields.Many2one(comodel_name='hr.salary.rule',
                                      string='Salary rule',
                                      required=True)

@@ -35,6 +35,11 @@ DIAN_CLAIM = {
     "03": "Mercancía no entregada parcialmente",
     "04": "Servicio no prestado",
 }
+MSG_TIMEOUT = _("DIAN service generates a timeout error.")
+MSG_ERROR1 = _(
+    "Unknown Error,\n\nStatus Code: %s,\nReason: %s\n\nContact with your administrator."
+)
+MSG_ERROR2 = _("Unknown Error,\n\n%s\n\nContact with your administrator.")
 
 
 class AccountInvoiceDianDocument(models.Model):
@@ -1197,18 +1202,43 @@ class AccountInvoiceDianDocument(models.Model):
             self.company_id.certificate_file,
             self.company_id.certificate_password,
         )
+        timeout = 10
 
-        response = post(
-            wsdl,
-            headers={"content-type": "application/soap+xml;charset=utf-8"},
-            data=etree.tostring(xml_soap_with_signature),
-            timeout=5,
-        )
+        for attempt in range(3):
+            try:
+                response = post(
+                    wsdl,
+                    headers={"content-type": "application/soap+xml;charset=utf-8"},
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
+                )
 
-        if response.status_code == 200:
-            self._get_status_response(response, True)
-        else:
-            raise ValidationError(response.status_code)
+                if response.status_code == 200:
+                    self._get_status_response(response, True)
+                elif response.status_code in (403, 500, 503, 507, 508):
+                    self.env["account.invoice.dian.document.line"].create(
+                        {
+                            "dian_document_id": self.id,
+                            "send_async_status_code": response.status_code,
+                            "send_async_reason": response.reason,
+                            "send_async_response": response.text,
+                        }
+                    )
+                else:
+                    raise ValidationError(
+                        MSG_ERROR1 % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(MSG_TIMEOUT)
+            except exceptions.RequestException as e:
+                raise ValidationError(MSG_ERROR2 % (e))
 
         return True
 
@@ -1217,12 +1247,12 @@ class AccountInvoiceDianDocument(models.Model):
             return True
 
         msg1 = _(
-            "Unknown Error,\nStatus Code: %s,\nReason: %s,\n\nContact with your administrator "
+            "Unknown Error,\n\nStatus Code: %s,\nReason: %s,\n\nContact with your administrator "
             "or you can choose a journal with a Contingency Checkbook E-Invoicing sequence "
             "and change the Invoice Type to 'E-document of transmission - type 03'."
         )
         msg2 = _(
-            "Unknown Error: %s\n\nContact with your administrator "
+            "Unknown Error,\n\n%s\n\nContact with your administrator "
             "or you can choose a journal with a Contingency Checkbook E-Invoicing sequence "
             "and change the Invoice Type to 'E-document of transmission - type 03'."
         )
@@ -1251,38 +1281,52 @@ class AccountInvoiceDianDocument(models.Model):
                 self.company_id.certificate_password,
             )
 
-        try:
-            response = post(
-                wsdl,
-                headers={"content-type": "application/soap+xml;charset=utf-8"},
-                data=etree.tostring(xml_soap_with_signature),
-                timeout=5,
-            )
+        timeout = 10
 
-            if response.status_code == 200:
-                self.write({"state": "sent"})
-
-                if self.company_id.profile_execution_id == "1":
-                    self._get_status_response(response, True)
-                else:
-                    root = etree.fromstring(response.text.encode("utf-8"))
-
-                    for element in root.iter("{%s}ZipKey" % b):
-                        self.write({"zip_key": element.text})
-                        self.action_GetStatusZip()
-            elif response.status_code in (403, 500, 503, 507, 508):
-                self.env["account.invoice.dian.document.line"].create(
-                    {
-                        "dian_document_id": self.id,
-                        "send_async_status_code": response.status_code,
-                        "send_async_reason": response.reason,
-                        "send_async_response": response.text,
-                    }
+        for attempt in range(3):
+            try:
+                response = post(
+                    wsdl,
+                    headers={"content-type": "application/soap+xml;charset=utf-8"},
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
                 )
-            else:
-                raise ValidationError(msg1 % (response.status_code, response.reason))
-        except exceptions.RequestException as e:
-            raise ValidationError(msg2 % (e))
+
+                if response.status_code == 200:
+                    self.write({"state": "sent"})
+
+                    if self.company_id.profile_execution_id == "1":
+                        self._get_status_response(response, True)
+                    else:
+                        root = etree.fromstring(response.text.encode("utf-8"))
+
+                        for element in root.iter("{%s}ZipKey" % b):
+                            self.write({"zip_key": element.text})
+                            self.action_GetStatusZip()
+                elif response.status_code in (403, 500, 503, 507, 508):
+                    self.env["account.invoice.dian.document.line"].create(
+                        {
+                            "dian_document_id": self.id,
+                            "send_async_status_code": response.status_code,
+                            "send_async_reason": response.reason,
+                            "send_async_response": response.text,
+                        }
+                    )
+                else:
+                    raise ValidationError(
+                        MSG_ERROR1 % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(MSG_TIMEOUT)
+            except exceptions.RequestException as e:
+                raise ValidationError(MSG_ERROR2 % (e))
 
         return True
 
@@ -1295,11 +1339,6 @@ class AccountInvoiceDianDocument(models.Model):
         return xml_soap_values
 
     def action_SendEventUpdateStatus(self):
-        msg1 = _(
-            "Unknown Error,\nStatus Code: %s,\nReason: %s,\n\nContact with your "
-            "administrator."
-        )
-        msg2 = _("Unknown Error: %s\n\nContact with your administrator.")
         b = "http://schemas.datacontract.org/2004/07/DianResponse"
         wsdl = DIAN_URL["wsdl-hab"]
 
@@ -1316,36 +1355,49 @@ class AccountInvoiceDianDocument(models.Model):
             self.company_id.certificate_file,
             self.company_id.certificate_password,
         )
+        timeout = 10
 
-        try:
-            response = post(
-                url=wsdl,
-                headers={
-                    "Content-Type": "application/soap+xml",
-                    "accept": "*/*",
-                    "accept-encoding": "gzip, deflate",
-                    "action": "http://wcf.dian.colombia/IWcfDianCustomerServices/SendEventUpdateStatus",
-                },
-                data=etree.tostring(xml_soap_with_signature),
-                timeout=5,
-            )
-
-            if response.status_code == 200:
-                self.write({"state": "sent"})
-                self._get_status_response(response, False)
-            elif response.status_code in (403, 500, 503, 507, 508):
-                self.env["account.invoice.dian.document.line"].create(
-                    {
-                        "dian_document_id": self.id,
-                        "send_async_status_code": response.status_code,
-                        "send_async_reason": response.reason,
-                        "send_async_response": response.text,
-                    }
+        for attempt in range(3):
+            try:
+                response = post(
+                    url=wsdl,
+                    headers={
+                        "Content-Type": "application/soap+xml",
+                        "accept": "*/*",
+                        "accept-encoding": "gzip, deflate",
+                        "action": "http://wcf.dian.colombia/IWcfDianCustomerServices/SendEventUpdateStatus",
+                    },
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
                 )
-            else:
-                raise ValidationError(msg1 % (response.status_code, response.reason))
-        except exceptions.RequestException as e:
-            raise ValidationError(msg2 % (e))
+
+                if response.status_code == 200:
+                    self.write({"state": "sent"})
+                    self._get_status_response(response, False)
+                elif response.status_code in (403, 500, 503, 507, 508):
+                    self.env["account.invoice.dian.document.line"].create(
+                        {
+                            "dian_document_id": self.id,
+                            "send_async_status_code": response.status_code,
+                            "send_async_reason": response.reason,
+                            "send_async_response": response.text,
+                        }
+                    )
+                else:
+                    raise ValidationError(
+                        MSG_ERROR1 % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(MSG_TIMEOUT)
+            except exceptions.RequestException as e:
+                raise ValidationError(MSG_ERROR2 % (e))
 
         return True
 
@@ -1368,11 +1420,6 @@ class AccountInvoiceDianDocument(models.Model):
         return xml_soap_values
 
     def _get_GetStatus(self, send_email):
-        msg1 = _(
-            "Unknown Error,\nStatus Code: %s,\nReason: %s"
-            "\n\nContact with your administrator."
-        )
-        msg2 = _("Unknown Error: %s\n\nContact with your administrator.")
         wsdl = DIAN_URL["wsdl-hab"]
 
         if self.company_id.profile_execution_id == "1":
@@ -1386,35 +1433,48 @@ class AccountInvoiceDianDocument(models.Model):
             self.company_id.certificate_file,
             self.company_id.certificate_password,
         )
+        timeout = 10
 
-        try:
-            response = post(
-                url=wsdl,
-                headers={
-                    "Content-Type": "application/soap+xml",
-                    "accept": "*/*",
-                    "accept-encoding": "gzip, deflate",
-                    "action": "http://wcf.dian.colombia/IWcfDianCustomerServices/GetStatus",
-                },
-                data=etree.tostring(xml_soap_with_signature),
-                timeout=5,
-            )
-
-            if response.status_code == 200:
-                return self._get_status_response(response, send_email)
-            elif response.status_code in (403, 500, 503, 507, 508):
-                self.env["account.invoice.dian.document.line"].create(
-                    {
-                        "dian_document_id": self.id,
-                        "send_async_status_code": response.status_code,
-                        "send_async_reason": response.reason,
-                        "send_async_response": response.text,
-                    }
+        for attempt in range(3):
+            try:
+                response = post(
+                    url=wsdl,
+                    headers={
+                        "Content-Type": "application/soap+xml",
+                        "accept": "*/*",
+                        "accept-encoding": "gzip, deflate",
+                        "action": "http://wcf.dian.colombia/IWcfDianCustomerServices/GetStatus",
+                    },
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
                 )
-            else:
-                raise ValidationError(msg1 % (response.status_code, response.reason))
-        except exceptions.RequestException as e:
-            raise ValidationError(msg2 % (e))
+
+                if response.status_code == 200:
+                    return self._get_status_response(response, send_email)
+                elif response.status_code in (403, 500, 503, 507, 508):
+                    self.env["account.invoice.dian.document.line"].create(
+                        {
+                            "dian_document_id": self.id,
+                            "send_async_status_code": response.status_code,
+                            "send_async_reason": response.reason,
+                            "send_async_response": response.text,
+                        }
+                    )
+                else:
+                    raise ValidationError(
+                        MSG_ERROR1 % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(MSG_TIMEOUT)
+            except exceptions.RequestException as e:
+                raise ValidationError(MSG_ERROR2 % (e))
 
     def action_GetStatus_without_send_email(self):
         return self._get_GetStatus(False)
@@ -1463,15 +1523,47 @@ class AccountInvoiceDianDocument(models.Model):
             self.company_id.certificate_file,
             self.company_id.certificate_password,
         )
+        timeout = 10
 
-        response = post(
-            wsdl,
-            headers={"content-type": "application/soap+xml;charset=utf-8"},
-            data=etree.tostring(xml_soap_with_signature),
-            timeout=5,
-        )
+        for attempt in range(3):
+            try:
+                response = post(
+                    wsdl,
+                    headers={"content-type": "application/soap+xml;charset=utf-8"},
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
+                )
 
-        if response.status_code == 200:
-            etree.fromstring(response.text)
+                if response.status_code == 200:
+                    self.write({"state": "sent"})
+                    root = etree.fromstring(response.text.encode("utf-8"))
+
+                    for element in root.iter("{%s}ZipKey" % b):
+                        self.write({"zip_key": element.text})
+                        self.action_GetStatusZip()
+                elif response.status_code in (403, 500, 503, 507, 508):
+                    self.env["account.invoice.dian.document.line"].create(
+                        {
+                            "dian_document_id": self.id,
+                            "send_async_status_code": response.status_code,
+                            "send_async_reason": response.reason,
+                            "send_async_response": response.text,
+                        }
+                    )
+                else:
+                    raise ValidationError(
+                        MSG_ERROR1 % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(MSG_TIMEOUT)
+            except exceptions.RequestException as e:
+                raise ValidationError(MSG_ERROR2 % (e))
 
         return True

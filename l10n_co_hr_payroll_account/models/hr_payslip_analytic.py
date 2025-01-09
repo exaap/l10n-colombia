@@ -20,7 +20,7 @@ class HrPayslipAnalytic(models.Model):
                               string='Payroll',
                               required=True,
                               ondelete='cascade',
-                              select=True)
+                              index=True)
 
     _sql_constraints = [
         ('rule_analytic_uniq',

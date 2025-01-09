@@ -16,4 +16,4 @@ class HrContractAnalytic(models.Model):
                                   string='Analytic Account',
                                   required=True,
                                   ondelete='cascade',
-                                  select=True)
+                                  index=True)

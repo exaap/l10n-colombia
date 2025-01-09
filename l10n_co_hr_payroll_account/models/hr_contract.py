@@ -105,10 +105,10 @@ class HrContract(models.Model):
     integral = fields.Boolean(string='integral salary', default=False)
     condition = fields.Float(string='Previous condition',
                              default=0.0,
-                             digits_compute=dp.get_precision('Payroll'))
+                             digits=dp.get_precision('Payroll'))
     compensation = fields.Float(string='Compensation',
                                 default=0.0,
-                                digits_compute=dp.get_precision('Payroll'))
+                                digits=dp.get_precision('Payroll'))
     date_to = fields.Date(string="Fixed contract termination")
 
     register_ids = fields.One2many(string='Contribution Registers',

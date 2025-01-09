@@ -10,10 +10,9 @@ from odoo.exceptions import ValidationError
 
 
 class HrHolidays(models.Model):
-    _description = "Leave"
     _inherit = "hr.leave"
 
-    def _compute_days_real(self, cr, uid, ids, name, args, context=None):
+    def _compute_days_real(self, name, args, context=None):
         check_pool = self.pool.get("account.check")
         rs_data = {}
 
@@ -21,15 +20,13 @@ class HrHolidays(models.Model):
         holidays_obj = self.pool.get("hr.holidays.public")
         DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-        for line in self.browse(cr, uid, ids, context=context):
+        for line in self.browse(context=context):
             diff_day = 0.0
             f_desde = datetime.strptime(line.date_from, DATETIME_FORMAT).date()
             f_hasta = datetime.strptime(line.date_to, DATETIME_FORMAT).date()
 
             # Determina si el empleado trabaja el sabado y cuando sabado hay en el rango de fechas
-            for emp in employee_obj.browse(
-                cr, uid, [line.employee_id.id], context=None
-            ):
+            for emp in employee_obj.browse([line.employee_id.id], context=None):
                 sabado = emp.sabado
 
             diff_day = 0

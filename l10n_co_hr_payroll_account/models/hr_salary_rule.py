@@ -47,7 +47,7 @@ class HrSalaryRule(models.Model):
     ],
                             string='Type',
                             readonly=False,
-                            select=True,
+                            index=True,
                             change_default=True,
                             track_visibility='always',
                             required=True)

@@ -50,10 +50,10 @@ class HrContractDeduction(models.Model):
                                    default=0.0,
                                    readonly=True)
     date = fields.Date(string='Start date',
-                       select=True,
+                       sindex=True,
                        help="Date of loan or obligation")
     date_end = fields.Date(string='Date End',
-                           select=True,
+                           index=True,
                            help="Date End or obligation")
 
     appears_on_payslip = fields.Boolean(string='Appears on Payslip')
@@ -62,7 +62,7 @@ class HrContractDeduction(models.Model):
                                   string='Contract',
                                   required=True,
                                   ondelete='cascade',
-                                  select=True)
+                                  index=True)
 
     @api.multi
     @api.depends('amount', 'period', 'total_deduction', 'total_accumulated')

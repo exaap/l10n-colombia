@@ -16,7 +16,7 @@ class HrContractChangeWage(models.Model):
                                   string='risks',
                                   required=True,
                                   ondelete='cascade',
-                                  select=True)
+                                  index=True)
 
     _sql_constraints = [
         ('change_wage_uniq', 'unique(contract_id, date_start)',

@@ -20,4 +20,4 @@ class HrContractliquidation(models.Model):
                                   string="liquidation",
                                   required=True,
                                   ondelete='cascade',
-                                  select=True)
+                                  index=True)

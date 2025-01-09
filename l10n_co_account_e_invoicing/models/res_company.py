@@ -10,6 +10,11 @@ from odoo import api, models, fields, _
 from odoo.exceptions import ValidationError
 
 ssl._create_default_https_context = ssl._create_unverified_context
+MSG_TIMEOUT = _("DIAN service generates a timeout error.")
+MSG_ERROR1 = _(
+    "Unknown Error,\n\nStatus Code: %s,\nReason: %s\n\nContact with your administrator."
+)
+MSG_ERROR2 = _("Unknown Error,\n\n%s\n\nContact with your administrator.")
 
 
 class ResCompany(models.Model):
@@ -121,8 +126,6 @@ class ResCompany(models.Model):
         return xml_soap_values
 
     def action_GetNumberingRange(self):
-        msg1 = _("Unknown Error,\nStatus Code: %s,\nReason: %s.")
-        msg2 = _("Unknown Error: %s\n.")
         wsdl = "https://vpfe.dian.gov.co/WcfDianCustomerServices.svc?wsdl"
         s = "http://www.w3.org/2003/05/soap-envelope"
 
@@ -136,30 +139,43 @@ class ResCompany(models.Model):
             self.certificate_file,
             self.certificate_password,
         )
+        timeout = 10
 
-        try:
-            response = post(
-                wsdl,
-                headers={"content-type": "application/soap+xml;charset=utf-8"},
-                data=etree.tostring(xml_soap_with_signature),
-                timeout=5,
-            )
+        for attempt in range(3):
+            try:
+                response = post(
+                    wsdl,
+                    headers={"content-type": "application/soap+xml;charset=utf-8"},
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
+                )
 
-            if response.status_code == 200:
-                root = etree.fromstring(response.text)
-                response = ""
+                if response.status_code == 200:
+                    root = etree.fromstring(response.text)
+                    response = ""
 
-                for element in root.iter("{%s}Body" % s):
-                    response = etree.tostring(element, pretty_print=True)
+                    for element in root.iter("{%s}Body" % s):
+                        response = etree.tostring(element, pretty_print=True)
 
-                if response == "":
-                    response = etree.tostring(root, pretty_print=True)
+                    if response == "":
+                        response = etree.tostring(root, pretty_print=True)
 
-                self.write({"get_numbering_range_response": response})
-            else:
-                raise ValidationError(msg1 % (response.status_code, response.reason))
-        except exceptions.RequestException as e:
-            raise ValidationError(msg2 % (e))
+                    self.write({"get_numbering_range_response": response})
+                else:
+                    raise ValidationError(
+                        MSG_ERROR1 % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(MSG_TIMEOUT)
+            except exceptions.RequestException as e:
+                raise ValidationError(MSG_ERROR2 % (e))
 
         return True
 
