@@ -10,11 +10,11 @@ from odoo import api, models, fields, _
 from odoo.exceptions import ValidationError
 
 ssl._create_default_https_context = ssl._create_unverified_context
-MSG_TIMEOUT = _("DIAN service generates a timeout error.")
-MSG_ERROR1 = _(
+MSG_TIMEOUT = "DIAN service generates a timeout error."
+MSG_ERROR1 = (
     "Unknown Error,\n\nStatus Code: %s,\nReason: %s\n\nContact with your administrator."
 )
-MSG_ERROR2 = _("Unknown Error,\n\n%s\n\nContact with your administrator.")
+MSG_ERROR2 = "Unknown Error,\n\n%s\n\nContact with your administrator."
 
 
 class ResCompany(models.Model):
@@ -163,7 +163,7 @@ class ResCompany(models.Model):
                     self.write({"get_numbering_range_response": response})
                 else:
                     raise ValidationError(
-                        MSG_ERROR1 % (response.status_code, response.reason)
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
                     )
 
                 break
@@ -173,9 +173,9 @@ class ResCompany(models.Model):
 
                     continue
                 else:
-                    raise ValidationError(MSG_TIMEOUT)
+                    raise ValidationError(_(MSG_TIMEOUT))
             except exceptions.RequestException as e:
-                raise ValidationError(MSG_ERROR2 % (e))
+                raise ValidationError(_(MSG_ERROR2) % (e))
 
         return True
 
@@ -183,17 +183,19 @@ class ResCompany(models.Model):
     def action_process_dian_documents(self):
         for company in self:
             count = 0
-            dian_documents = self.env["account.invoice.dian.document"].search(
+            dian_document_ids = self.env["account.invoice.dian.document"].search(
                 [("state", "in", ("draft", "sent")), ("company_id", "=", company.id)],
                 order="zipped_filename asc",
             )
 
-            for dian_document in dian_documents:
-                dian_document.action_process()
-                count += 1
-
-                if count == 10:
-                    return True
+            for dian_document_id in dian_document_ids:
+                try:
+                    dian_document_id.action_process()
+                    count += 1
+                    if count == 10:
+                        return True
+                except:
+                    continue
 
         return True
 

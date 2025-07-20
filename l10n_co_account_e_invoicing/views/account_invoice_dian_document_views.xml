@@ -22,7 +22,15 @@
             <form string="DIAN Document">
                 <header>
                     <field name="state" widget="statusbar" statusbar_visible="draft,sent,done,cancel"/>
-                    <button name="action_set_files" string="Set Files" type="object" states="draft,sent" class="btn-primary"/>
+                    <button name="action_set_files"
+                        string="Set Files"
+                        type="object"
+                        states="draft,sent"
+                        class="btn-primary"
+                        attrs="{'invisible': ['|', '|',
+                                ('xml_file', '=', False),
+                                ('zipped_file', '=', False),
+                                ('state', 'not in', ('draft', 'sent'))]}"/>
                     <button name="action_send_zipped_file"
                         string="Send Zipped File"
                         type="object"
@@ -40,10 +48,9 @@
                         string="GetStatus without Send E-Mail"
                         type="object"
                         class="btn-primary"
-                        attrs="{'invisible': ['|', '|', '|',
+                        attrs="{'invisible': ['|', '|',
                                 ('cufe_cude', '=', False),
                                 ('xml_file', '=', False),
-                                ('zipped_file', '=', False),
                                 ('state', 'in', ('cancel'))]}"/>
                     <button name="action_set_ad_zipped_file"
                         string="Set AttachedDocument Zipped File"

@@ -35,11 +35,11 @@ DIAN_CLAIM = {
     "03": "Mercancía no entregada parcialmente",
     "04": "Servicio no prestado",
 }
-MSG_TIMEOUT = _("DIAN service generates a timeout error.")
-MSG_ERROR1 = _(
+MSG_TIMEOUT = "DIAN service generates a timeout error."
+MSG_ERROR1 = (
     "Unknown Error,\n\nStatus Code: %s,\nReason: %s\n\nContact with your administrator."
 )
-MSG_ERROR2 = _("Unknown Error,\n\n%s\n\nContact with your administrator.")
+MSG_ERROR2 = "Unknown Error,\n\n%s\n\nContact with your administrator."
 
 
 class AccountInvoiceDianDocument(models.Model):
@@ -1025,29 +1025,21 @@ class AccountInvoiceDianDocument(models.Model):
 
     @api.multi
     def action_send_email(self):
-        msg = _("Your invoice has not been validated")
+        if not self.invoice_id.number:
+            raise UserError(_("Your invoice has not been validated"))
+
         self.invoice_id.write(
             {"dian_document_mail_subject": self._get_dian_document_mail_subject()}
         )
-        template_id = self.env.ref(
-            "l10n_co_account_e_invoicing.email_template_for_einvoice"
-        ).id
-        template = self.env["mail.template"].browse(template_id)
-
-        if not self.invoice_id.number:
-            raise UserError(msg)
-
-        attachment = self.env["ir.attachment"].create(
-            {
-                "name": self.ad_zipped_filename,
-                "datas_fname": self.ad_zipped_filename,
-                "datas": self.ad_zipped_file,
-            }
+        template_id = self.env["mail.template"].browse(
+            self.env.ref("l10n_co_account_e_invoicing.email_template_for_einvoice").id
         )
-        template.attachment_ids = [(6, 0, [(attachment.id)])]
-        self.write({"mail_sent": True})
-        template.send_mail(self.invoice_id.id, force_send=True)
-        attachment.unlink()
+        mail_id = template_id.send_mail(self.id, force_send=True)
+        mail_id = self.env["mail.mail"].browse(mail_id)
+
+        if mail_id.state == "sent":
+            self.mail_sent = True
+            mail_id.sudo().unlink()
 
         return True
 
@@ -1226,7 +1218,7 @@ class AccountInvoiceDianDocument(models.Model):
                     )
                 else:
                     raise ValidationError(
-                        MSG_ERROR1 % (response.status_code, response.reason)
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
                     )
 
                 break
@@ -1236,9 +1228,9 @@ class AccountInvoiceDianDocument(models.Model):
 
                     continue
                 else:
-                    raise ValidationError(MSG_TIMEOUT)
+                    raise ValidationError(_(MSG_TIMEOUT))
             except exceptions.RequestException as e:
-                raise ValidationError(MSG_ERROR2 % (e))
+                raise ValidationError(_(MSG_ERROR2) % (e))
 
         return True
 
@@ -1314,7 +1306,7 @@ class AccountInvoiceDianDocument(models.Model):
                     )
                 else:
                     raise ValidationError(
-                        MSG_ERROR1 % (response.status_code, response.reason)
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
                     )
 
                 break
@@ -1324,9 +1316,9 @@ class AccountInvoiceDianDocument(models.Model):
 
                     continue
                 else:
-                    raise ValidationError(MSG_TIMEOUT)
+                    raise ValidationError(_(MSG_TIMEOUT))
             except exceptions.RequestException as e:
-                raise ValidationError(MSG_ERROR2 % (e))
+                raise ValidationError(_(MSG_ERROR2) % (e))
 
         return True
 
@@ -1385,7 +1377,7 @@ class AccountInvoiceDianDocument(models.Model):
                     )
                 else:
                     raise ValidationError(
-                        MSG_ERROR1 % (response.status_code, response.reason)
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
                     )
 
                 break
@@ -1395,9 +1387,9 @@ class AccountInvoiceDianDocument(models.Model):
 
                     continue
                 else:
-                    raise ValidationError(MSG_TIMEOUT)
+                    raise ValidationError(_(MSG_TIMEOUT))
             except exceptions.RequestException as e:
-                raise ValidationError(MSG_ERROR2 % (e))
+                raise ValidationError(_(MSG_ERROR2) % (e))
 
         return True
 
@@ -1462,7 +1454,7 @@ class AccountInvoiceDianDocument(models.Model):
                     )
                 else:
                     raise ValidationError(
-                        MSG_ERROR1 % (response.status_code, response.reason)
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
                     )
 
                 break
@@ -1472,9 +1464,9 @@ class AccountInvoiceDianDocument(models.Model):
 
                     continue
                 else:
-                    raise ValidationError(MSG_TIMEOUT)
+                    raise ValidationError(_(MSG_TIMEOUT))
             except exceptions.RequestException as e:
-                raise ValidationError(MSG_ERROR2 % (e))
+                raise ValidationError(_(MSG_ERROR2) % (e))
 
     def action_GetStatus_without_send_email(self):
         return self._get_GetStatus(False)
@@ -1552,7 +1544,7 @@ class AccountInvoiceDianDocument(models.Model):
                     )
                 else:
                     raise ValidationError(
-                        MSG_ERROR1 % (response.status_code, response.reason)
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
                     )
 
                 break
@@ -1562,8 +1554,8 @@ class AccountInvoiceDianDocument(models.Model):
 
                     continue
                 else:
-                    raise ValidationError(MSG_TIMEOUT)
+                    raise ValidationError(_(MSG_TIMEOUT))
             except exceptions.RequestException as e:
-                raise ValidationError(MSG_ERROR2 % (e))
+                raise ValidationError(_(MSG_ERROR2) % (e))
 
         return True

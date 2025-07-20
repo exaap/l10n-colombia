@@ -93,7 +93,7 @@ msgid "<div style=\"font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-s
 "\n"
 "            <br><br>\n"
 "\n"
-"            <p>Número de la factura, nota débito, nota crédito o documento electrónico: <strong>${object.reference or object.number}</strong></p>\n"
+"            <p>Número de la factura, nota débito, nota crédito o documento electrónico: <strong>${object.number}</strong></p>\n"
 "            <p>A nombre de: <strong>${object.partner_id.name}</strong></p>\n"
 "            <p>Valor Total: <strong>${object.amount_total} ${object.currency_id.name}</strong></p>\n"
 "\n"

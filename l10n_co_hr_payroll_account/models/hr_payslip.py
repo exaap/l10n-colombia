@@ -527,88 +527,55 @@ class HrPayslip(models.Model):
 
     @api.model
     def get_worked_day_lines(self, contracts, date_from, date_to):
-        print('** get_worked_day_lines sobreescrito')
-        """
-        @param contract: Browse record of contracts
-        @return: returns a list of dict containing the input that should be applied for the given contract between date_from and date_to
-        """
-        res = []
-        # fill only if the contract as a working schedule linked
+        worked_day_lines = super(HrPayslip, self).get_worked_day_lines(
+            contracts, date_from, date_to
+        )
+        day_from = datetime.combine(fields.Date.from_string(date_from), time.min)
+        day_to = datetime.combine(fields.Date.from_string(date_to), time.max)
+        days_add = 0
+
+        if day_to.month in (1, 3, 5, 7, 8, 10, 12) and day_to.day == 31:
+            days_add = -1
+
+        if day_to.month == 2:
+            if day_to.day == 28:
+                days_add = 2
+            if day_to.day == 29:
+                days_add = 1
+
+        for i, line in enumerate(worked_day_lines):
+            if line.get("code") == "WORK100" and self.type_liquid in ["otro"]:
+                worked_day_lines[i]["number_of_days"] = 0
+                worked_day_lines[i]["number_of_hours"] = 0
+            elif line.get("code") == "WORK100" and line.get("number_of_days") > 0:
+                worked_day_lines[i]["number_of_days"] += days_add
+
+                if day_to.month != 2:
+                    return worked_day_lines
+
+            if line.get("code") == "WORK100":
+                break
+
         for contract in contracts.filtered(
-                lambda contract: contract.resource_calendar_id):
-            day_from = datetime.combine(fields.Date.from_string(date_from),
-                                        time.min)
-            day_to = datetime.combine(fields.Date.from_string(date_to),
-                                      time.max)
-
-            #Febrero
-            nb_of_days = 0
-            if day_to.month == 2:
-                if day_to.day == 28:
-                    nb_of_days = 2
-                if day_to.day == 29:
-                    nb_of_days = 1
-
-            if (day_from.month in (1, 3, 5, 7, 8, 10,
-                                   12)) and (day_from.month != day_to.month):
-                nb_of_days = -1
-
-            # compute leave days
-            leaves = {}
-            calendar = contract.resource_calendar_id
-            tz = timezone(calendar.tz)
+            lambda contract: contract.resource_calendar_id
+        ):
             day_leave_intervals = contract.employee_id.list_leaves(
-                day_from, day_to, calendar=contract.resource_calendar_id)
+                day_from, day_to, calendar=contract.resource_calendar_id
+            )
+
             for day, hours, leave in day_leave_intervals:
+                if day.day == day_to.day:
+                    holiday = leave[:1].holiday_id
 
-                holiday = leave.holiday_id
-                current_leave_struct = leaves.setdefault(
-                    holiday.holiday_status_id, {
-                        'name':
-                        holiday.holiday_status_id.name or _('Global Leaves'),
-                        'sequence':
-                        5,
-                        'code':
-                        holiday.holiday_status_id.name or 'GLOBAL',
-                        'number_of_days':
-                        0.0,
-                        'number_of_hours':
-                        0.0,
-                        'contract_id':
-                        contract.id,
-                    })
-                current_leave_struct['number_of_hours'] += hours
-                work_hours = calendar.get_work_hours_count(
-                    tz.localize(datetime.combine(day, time.min)),
-                    tz.localize(datetime.combine(day, time.max)),
-                    compute_leaves=False,
-                )
-                if work_hours:
-                    current_leave_struct[
-                        'number_of_days'] += hours / work_hours
+                    for i, line in enumerate(worked_day_lines):
+                        if line.get("code") == (
+                            holiday.holiday_status_id.name or "GLOBAL"
+                        ):
+                            worked_day_lines[i]["number_of_days"] += days_add
 
-            # compute worked days
-            work_data = contract.employee_id.get_work_days_data(
-                day_from, day_to, calendar=contract.resource_calendar_id)
+                    break
 
-            #si no calcula nómina, los días trabajados deben ser cero
-            if self.type_liquid in ['otro']:
-                work_data['days'] = 0
-                nb_of_days = 0
-                work_data['hours'] = 0
-
-            attendances = {
-                'name': _("Normal Working Days paid at 100%"),
-                'sequence': 1,
-                'code': 'WORK100',
-                'number_of_days': work_data['days'] + nb_of_days,
-                'number_of_hours': work_data['hours'],
-                'contract_id': contract.id,
-            }
-
-            res.append(attendances)
-            res.extend(leaves.values())
-        return res
+        return worked_day_lines
 
     @api.multi
     def onchange_employee_id(self,
