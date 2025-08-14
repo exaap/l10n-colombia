@@ -442,173 +442,24 @@ class AccountInvoice(models.Model):
         }
 
     def _get_invoice_lines(self):
-        msg1 = _("The invoice line %s has no reference")
-        msg2 = _(
-            "Your product: '%s', has no reference price, contact with your "
-            "administrator."
-        )
-        msg3 = _(
-            "Your tax: '%s', has no e-invoicing tax group type, contact with your "
-            "administrator."
-        )
-        msg4 = _(
-            "Your withholding tax: '%s', has amount equal to zero (0), the "
-            "withholding taxes must have amount different to zero (0), contact "
-            "with your administrator."
-        )
-        msg5 = _(
-            "Your tax: '%s', has negative amount or an amount equal to zero (0), "
-            "the taxes must have an amount greater than zero (0), contact with "
-            "your administrator."
-        )
-        invoice_lines = {}
-        count = 1
-
-        for invoice_line in self.invoice_line_ids:
-            disc_amount = 0
-            total_wo_disc = 0
-            brand_name = False
-            model_name = False
-
-            if invoice_line.price_unit != 0 and invoice_line.quantity != 0:
-                total_wo_disc = invoice_line.price_unit * invoice_line.quantity
-
-            if total_wo_disc != 0 and invoice_line.discount != 0:
-                disc_amount = (total_wo_disc * invoice_line.discount) / 100
-
-            if not invoice_line.product_id:
-                raise UserError(msg1 % invoice_line.name)
-
-            if invoice_line.price_subtotal <= 0 and invoice_line.reference_price <= 0:
-                raise UserError(msg2 % invoice_line.product_id.display_name)
-
-            if self.invoice_type_code == "02":
-                if invoice_line.product_id.product_brand_id:
-                    brand_name = str(invoice_line.product_id.product_brand_id.id)
-
-                model_name = str(invoice_line.product_id.id)
-
-            invoice_lines[count] = {}
-            invoice_lines[count]["unitCode"] = invoice_line.uom_id.code
-            invoice_lines[count]["Quantity"] = "{:.2f}".format(invoice_line.quantity)
-            invoice_lines[count][
-                "PricingReferencePriceAmount"
-            ] = invoice_line.reference_price
-            invoice_lines[count]["LineExtensionAmount"] = invoice_line.price_subtotal
-            invoice_lines[count]["MultiplierFactorNumeric"] = "{:.2f}".format(
-                invoice_line.discount
-            )
-            invoice_lines[count]["AllowanceChargeAmount"] = disc_amount
-            invoice_lines[count]["AllowanceChargeBaseAmount"] = total_wo_disc
-            invoice_lines[count]["TaxesTotal"] = {}
-            invoice_lines[count]["WithholdingTaxesTotal"] = {}
-            invoice_lines[count]["StandardItemIdentification"] = str(
-                invoice_line.product_id.id
-            )
-
-            for tax in invoice_line.invoice_line_tax_ids:
-                if tax.amount_type == "group":
-                    tax_ids = tax.children_tax_ids
-                else:
-                    tax_ids = tax
-
-                for tax_id in tax_ids:
-                    if tax_id.tax_group_id.is_einvoicing:
-                        if not tax_id.tax_group_id.tax_group_type_id:
-                            raise UserError(msg3 % tax.name)
-
-                        tax_type = tax_id.tax_group_id.tax_group_type_id.type
-
-                        if tax_type == "withholding_tax" and tax_id.amount == 0:
-                            raise UserError(msg4 % tax_id.name)
-
-                        if tax_type == "tax" and tax_id.amount <= 0:
-                            raise UserError(msg5 % tax_id.name)
-
-                        if tax_type == "withholding_tax" and tax_id.amount > 0:
-                            invoice_lines[count]["WithholdingTaxesTotal"] = (
-                                invoice_line._get_invoice_lines_taxes(
-                                    tax_id,
-                                    tax_id.amount,
-                                    invoice_lines[count]["WithholdingTaxesTotal"],
-                                )
-                            )
-                        elif tax_type == "withholding_tax" and tax_id.amount < 0:
-                            # TODO 3.0 Las retenciones se recomienda no enviarlas a la DIAN.
-                            # Solo la parte positiva que indicaria una autoretencion, Si la DIAN
-                            # pide que se envie la parte negativa, seria quitar o comentar este if
-                            pass
-                        else:
-                            invoice_lines[count]["TaxesTotal"] = (
-                                invoice_line._get_invoice_lines_taxes(
-                                    tax_id,
-                                    tax_id.amount,
-                                    invoice_lines[count]["TaxesTotal"],
-                                )
-                            )
-
-            if "01" not in invoice_lines[count]["TaxesTotal"]:
-                invoice_lines[count]["TaxesTotal"]["01"] = {}
-                invoice_lines[count]["TaxesTotal"]["01"]["total"] = 0
-                invoice_lines[count]["TaxesTotal"]["01"]["name"] = "IVA"
-                invoice_lines[count]["TaxesTotal"]["01"]["taxes"] = {}
-                invoice_lines[count]["TaxesTotal"]["01"]["taxes"]["0.00"] = {}
-                invoice_lines[count]["TaxesTotal"]["01"]["taxes"]["0.00"][
-                    "base"
-                ] = invoice_line.price_subtotal
-                invoice_lines[count]["TaxesTotal"]["01"]["taxes"]["0.00"]["amount"] = 0
-
-            if "04" not in invoice_lines[count]["TaxesTotal"]:
-                invoice_lines[count]["TaxesTotal"]["04"] = {}
-                invoice_lines[count]["TaxesTotal"]["04"]["total"] = 0
-                invoice_lines[count]["TaxesTotal"]["04"]["name"] = "ICA"
-                invoice_lines[count]["TaxesTotal"]["04"]["taxes"] = {}
-                invoice_lines[count]["TaxesTotal"]["04"]["taxes"]["0.00"] = {}
-                invoice_lines[count]["TaxesTotal"]["04"]["taxes"]["0.00"][
-                    "base"
-                ] = invoice_line.price_subtotal
-                invoice_lines[count]["TaxesTotal"]["04"]["taxes"]["0.00"]["amount"] = 0
-
-            if "03" not in invoice_lines[count]["TaxesTotal"]:
-                invoice_lines[count]["TaxesTotal"]["03"] = {}
-                invoice_lines[count]["TaxesTotal"]["03"]["total"] = 0
-                invoice_lines[count]["TaxesTotal"]["03"]["name"] = "INC"
-                invoice_lines[count]["TaxesTotal"]["03"]["taxes"] = {}
-                invoice_lines[count]["TaxesTotal"]["03"]["taxes"]["0.00"] = {}
-                invoice_lines[count]["TaxesTotal"]["03"]["taxes"]["0.00"][
-                    "base"
-                ] = invoice_line.price_subtotal
-                invoice_lines[count]["TaxesTotal"]["03"]["taxes"]["0.00"]["amount"] = 0
-
-            invoice_lines[count]["BrandName"] = brand_name
-            invoice_lines[count]["ModelName"] = model_name
-            invoice_lines[count]["ItemDescription"] = (
-                invoice_line.product_id.name or invoice_line.name
-            )
-            invoice_lines[count][
-                "InformationContentProviderParty"
-            ] = invoice_line._get_information_content_provider_party_values()
-            invoice_lines[count]["PriceAmount"] = invoice_line.price_unit
-            count += 1
-
-        return invoice_lines
+        return self.invoice_line_ids._get_invoice_lines(self.invoice_type_code)
 
     def set_invoice_lines_price_reference(self):
-        for invoice_line in self.invoice_line_ids:
+        for line_id in self.invoice_line_ids:
             percentage = 100
-            margin_percentage = invoice_line.product_id.margin_percentage
+            margin_percentage = line_id.product_id.margin_percentage
 
-            if invoice_line.product_id.reference_price > 0:
-                reference_price = invoice_line.product_id.reference_price
+            if line_id.product_id.reference_price > 0:
+                reference_price = line_id.product_id.reference_price
             elif 0 < margin_percentage < 100:
                 percentage = (percentage - margin_percentage) / 100
-                reference_price = invoice_line.product_id.standard_price / percentage
+                reference_price = line_id.product_id.standard_price / percentage
             else:
                 reference_price = 0
 
-            invoice_line.write(
+            line_id.write(
                 {
-                    "cost_price": invoice_line.product_id.standard_price,
+                    "cost_price": line_id.product_id.standard_price,
                     "reference_price": reference_price,
                 }
             )

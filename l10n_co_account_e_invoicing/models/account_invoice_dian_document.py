@@ -8,6 +8,7 @@ from base64 import b64encode, b64decode
 from zipfile import ZipFile
 import ssl
 from pytz import timezone
+from qrcode import QRCode
 from requests import post, exceptions
 from lxml import etree
 from . import global_functions
@@ -108,12 +109,15 @@ class AccountInvoiceDianDocument(models.Model):
 
         return qr_data
 
-    @api.multi
-    def _compute_qr_image(self):
-        for dian_document_id in self:
-            dian_document_id.qr_image = global_functions.get_qr_image(
-                dian_document_id._get_qr_data()
-            )
+    def _get_qrcode(self):
+        qr_code = QRCode(version=4, box_size=4, border=1)
+        qr_code.add_data(self._get_qr_data())
+        qr_code.make(fit=True)
+        image = qr_code.make_image()
+        buffer = BytesIO()
+        image.save(buffer, format="PNG")
+
+        return b64encode(buffer.getvalue())
 
     state = fields.Selection(
         selection=[
@@ -173,7 +177,6 @@ class AccountInvoiceDianDocument(models.Model):
         default=False,
     )
     get_status_zip_response = fields.Text(string="Response")
-    qr_image = fields.Binary("QR Code", compute="_compute_qr_image")
     dian_document_line_ids = fields.One2many(
         comodel_name="account.invoice.dian.document.line",
         inverse_name="dian_document_id",

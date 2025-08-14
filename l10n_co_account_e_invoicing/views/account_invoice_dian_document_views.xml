@@ -100,9 +100,6 @@
                             <field name="software_security_code" readonly="1"/>
                             <field name="zip_key" readonly="1" attrs="{'invisible': [('profile_execution_id', '=', '1')]}"/>
                         </group>
-                        <group string="QR Image">
-                            <field name="qr_image" widget="image" style="width: 200px; height: 200px;" nolabel="1"/>
-                        </group>
                     </group>
                     <group string="GetStatus">
                         <field name="get_status_zip_status_code" readonly="1"/>

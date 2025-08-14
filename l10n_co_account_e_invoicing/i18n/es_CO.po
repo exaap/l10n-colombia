@@ -867,16 +867,6 @@ msgid "Production"
 msgstr "Producción"
 
 #. module: l10n_co_account_e_invoicing
-#: model:ir.model.fields,field_description:l10n_co_account_e_invoicing.field_account_invoice_dian_document__qr_image
-msgid "QR Code"
-msgstr "Código QR"
-
-#. module: l10n_co_account_e_invoicing
-#: model_terms:ir.ui.view,arch_db:l10n_co_account_e_invoicing.account_invoice_dian_document_view_form
-msgid "QR Image"
-msgstr "Imagen QR"
-
-#. module: l10n_co_account_e_invoicing
 #: model:ir.model.fields,field_description:l10n_co_account_e_invoicing.field_account_invoice_dian_document_line__send_async_reason
 msgid "Reason"
 msgstr "Motivo"

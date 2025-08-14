@@ -9,7 +9,7 @@
             (object.company_id.einvoicing_partner_no_email)}${',' +
             object.company_id.einvoicing_receives_all_emails if
             object.company_id.einvoicing_receives_all_emails else ''}</field>
-        <field name="model_id" ref="account.model_account_invoice_dian_document"/>
+        <field name="model_id" ref="l10n_co_account_e_invoicing.model_account_invoice_dian_document"/>
         <field name="auto_delete" eval="False"/>
         <field name="notification" eval="True"/>
         <field name="lang">${object.invoice_id.partner_id.lang}</field>

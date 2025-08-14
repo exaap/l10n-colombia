@@ -12,7 +12,6 @@ from lxml import etree
 from jinja2 import Environment, FileSystemLoader
 from pgxades import XAdESContext, PolicyId, template
 import xmlsig
-from qrcode import QRCode, constants
 from odoo import _
 from odoo.exceptions import ValidationError
 
@@ -315,18 +314,3 @@ def get_xml_soap_with_signature(
     ctx.verify(signature)
 
     return root
-
-
-def get_qr_image(data):
-    qr_code = QRCode(
-        version=1, error_correction=constants.ERROR_CORRECT_L, box_size=20, border=4
-    )
-    qr_code.add_data(data)
-    qr_code.make(fit=True)
-    image = qr_code.make_image()
-    temp = BytesIO()
-    image.save(temp, format="PNG")
-    qr_image = b64encode(temp.getvalue()).decode("utf-8")
-    temp.close()
-
-    return qr_image

@@ -22,8 +22,8 @@
             </div>
             <div class="col-xs-2" align="right">
                 <t t-foreach="o.dian_document_ids" t-as="dd">
-                    <t t-if="dd.qr_image and dd.state != 'cancel'">
-                        <img class="image" t-att-src="'data:image/png;base64,%s' % dd.qr_image"
+                    <t t-if="dd.state != 'cancel'">
+                        <img class="image" t-att-src="image_data_uri(dd._get_qrcode())"
                             style="width:120px;height:120px"/>
                     </t>
                 </t>

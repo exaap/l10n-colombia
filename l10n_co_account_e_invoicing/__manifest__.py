@@ -16,11 +16,11 @@
         "l10n_co_sequence_resolution",
         "account_invoice_refund_link",
         "account_fiscal_year",
+        "account_product_set",
         "partner_coc",
         "partner_commercial_name",
         "partner_multi_name",
         "product_brand",
-        "sale",
     ],
     "external_dependencies": {
         "python": [
