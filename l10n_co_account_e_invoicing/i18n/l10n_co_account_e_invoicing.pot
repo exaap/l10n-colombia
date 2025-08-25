@@ -1164,16 +1164,6 @@ msgid "Unknown"
 msgstr ""
 
 #. module: l10n_co_account_e_invoicing
-#: code:addons/l10n_co_account_e_invoicing/models/account_invoice_dian_document.py:1254
-#, python-format
-msgid "Unknown Error,\n"
-"\n"
-"%s\n"
-"\n"
-"Contact with your administrator or you can choose a journal with a Contingency Checkbook E-Invoicing sequence and change the Invoice Type to 'E-document of transmission - type 03'."
-msgstr ""
-
-#. module: l10n_co_account_e_invoicing
 #: code:addons/l10n_co_account_e_invoicing/models/account_invoice_dian_document.py:42
 #: code:addons/l10n_co_account_e_invoicing/models/res_company.py:17
 #, python-format
@@ -1194,17 +1184,6 @@ msgid "Unknown Error,\n"
 "Reason: %s\n"
 "\n"
 "Contact with your administrator."
-msgstr ""
-
-#. module: l10n_co_account_e_invoicing
-#: code:addons/l10n_co_account_e_invoicing/models/account_invoice_dian_document.py:1249
-#, python-format
-msgid "Unknown Error,\n"
-"\n"
-"Status Code: %s,\n"
-"Reason: %s,\n"
-"\n"
-"Contact with your administrator or you can choose a journal with a Contingency Checkbook E-Invoicing sequence and change the Invoice Type to 'E-document of transmission - type 03'."
 msgstr ""
 
 #. module: l10n_co_account_e_invoicing

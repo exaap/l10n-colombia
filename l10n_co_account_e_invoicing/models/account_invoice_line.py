@@ -3,6 +3,7 @@
 
 from odoo import models, fields, _
 from odoo.addons import decimal_precision as dp
+from odoo.exceptions import UserError
 
 
 class AccountInvoiceLine(models.Model):
@@ -23,7 +24,7 @@ class AccountInvoiceLine(models.Model):
         tax_name = tax_id.tax_group_id.tax_group_type_id.name
         tax_percent = "{:.2f}".format(tax_id.amount)
         tax_base = self.price_subtotal
-        tax_amount = tax_base * tax_id.amount / 100
+        tax_total = tax_base * tax_id.amount / 100
 
         if tax_code not in line_taxes_total:
             line_taxes_total[tax_code] = {}
@@ -38,7 +39,7 @@ class AccountInvoiceLine(models.Model):
 
         line_taxes_total[tax_code]["total"] += tax_total
         line_taxes_total[tax_code]["taxes"][tax_percent]["base"] += tax_base
-        line_taxes_total[tax_code]["taxes"][tax_percent]["amount"] += tax_amount
+        line_taxes_total[tax_code]["taxes"][tax_percent]["amount"] += tax_total
 
         return line_taxes_total
 
@@ -191,7 +192,8 @@ class AccountInvoiceLine(models.Model):
             item += 1
 
         for kit_line_id in self.mapped("product_set_sale_id"):
-            base = 0
+            reference_price = 0.00
+            base = 0.00
             brand_name = False
             model_name = False
 
@@ -220,9 +222,11 @@ class AccountInvoiceLine(models.Model):
             line_ids = self.filtered(lambda x: x.product_set_sale_id == kit_line_id)
 
             for line_id in line_ids:
+                reference_price += line_id.reference_price
                 base += line_id.price_subtotal
                 invoice_lines[item] = line_id._get_line_taxes(invoice_lines[item])
 
+            invoice_lines[item]["PricingReferencePriceAmount"] = reference_price
             invoice_lines[item]["LineExtensionAmount"] = base
             invoice_lines[item]["AllowanceChargeBaseAmount"] = base
             invoice_lines[item]["TaxesTotal"] = self._set_line_taxes_total(

@@ -18,10 +18,10 @@ from odoo.exceptions import ValidationError, UserError
 ssl._create_default_https_context = ssl._create_unverified_context
 
 DIAN_URL = {
-    "wsdl-hab": "https://vpfe-hab.dian.gov.co/WcfDianCustomerServices.svc?wsdl",
-    "wsdl": "https://vpfe.dian.gov.co/WcfDianCustomerServices.svc?wsdl",
-    "catalogo-hab": "https://catalogo-vpfe-hab.dian.gov.co/document/searchqr?documentkey={}",
-    "catalogo": "https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey={}",
+    "wsdl1": "https://vpfe.dian.gov.co/WcfDianCustomerServices.svc?wsdl",
+    "wsdl2": "https://vpfe-hab.dian.gov.co/WcfDianCustomerServices.svc?wsdl",
+    "catalogo1": "https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey={}",
+    "catalogo2": "https://catalogo-vpfe-hab.dian.gov.co/document/searchqr?documentkey={}",
 }
 APPLICATION_RESPONSE = {
     "030": "Acuse de recibo de Factura Electrónica de Venta",
@@ -337,13 +337,8 @@ class AccountInvoiceDianDocument(models.Model):
         SoftwareSecurityCode = global_functions.get_SoftwareSecurityCode(
             IdSoftware, SoftwarePIN, ID
         )
-        ProfileExecutionID = self.company_id.profile_execution_id
-
-        if ProfileExecutionID == "1":
-            QRCodeURL = DIAN_URL["catalogo"]
-        else:
-            QRCodeURL = DIAN_URL["catalogo-hab"]
-
+        ProfileExecutionID = self.profile_execution_id
+        QRCodeURL = DIAN_URL["catalogo" + ProfileExecutionID]
         issue_datetime = self.issue_datetime
         IssueDate = datetime.strftime(issue_datetime, "%Y-%m-%d")
         IssueTime = datetime.strftime(issue_datetime, "%H:%M:%S-05:00")
@@ -392,6 +387,10 @@ class AccountInvoiceDianDocument(models.Model):
                 "software_security_code": SoftwareSecurityCode["SoftwareSecurityCode"],
             }
         )
+        invoice_line_ids = self.invoice_id.invoice_line_ids
+        invoice_line_ids = invoice_line_ids.filtered(lambda x: not x.display_type)
+        line_ids = invoice_line_ids.filtered(lambda x: not x.product_set_sale_id)
+        kit_line_ids = invoice_line_ids.mapped("product_set_sale_id")
 
         return {
             "ProviderIDschemeID": provider.l10n_co_verification_digit,
@@ -409,7 +408,7 @@ class AccountInvoiceDianDocument(models.Model):
             "ValOtroIm": "{:.2f}".format(ValOtroIm),
             "DueDate": self.invoice_id.date_due,
             "Note": self.invoice_id.comment or "",
-            "LineCountNumeric": len(self.invoice_id.invoice_line_ids),
+            "LineCountNumeric": len(line_ids) + len(kit_line_ids),
             "OrderReferenceID": self.invoice_id.name,
             "ReceiptDocumentReferenceID": self.invoice_id.receipt_document_reference,
             "IndustryClassificationCode": IndustryClassificationCode,
@@ -603,13 +602,8 @@ class AccountInvoiceDianDocument(models.Model):
         SoftwareSecurityCode = global_functions.get_SoftwareSecurityCode(
             SoftwareProvider["SoftwareID"], SoftwarePIN, ID
         )
-        ProfileExecutionID = self.company_id.profile_execution_id
-
-        if ProfileExecutionID == "1":
-            QRCodeURL = DIAN_URL["catalogo"]
-        else:
-            QRCodeURL = DIAN_URL["catalogo-hab"]
-
+        ProfileExecutionID = self.profile_execution_id
+        QRCodeURL = DIAN_URL["catalogo" + ProfileExecutionID]
         QRCodeURL = QRCodeURL.format(DocumentReference["UUID"])
         issue_datetime = self.issue_datetime
         IssueDate = datetime.strftime(issue_datetime, "%Y-%m-%d")
@@ -892,7 +886,7 @@ class AccountInvoiceDianDocument(models.Model):
         return True
 
     def _get_ad_xml_values(self):
-        ProfileExecutionID = self.company_id.profile_execution_id
+        ProfileExecutionID = self.profile_execution_id
         ad_zipped_filename = self.ad_zipped_filename
         ID = ad_zipped_filename.replace(".zip", "")
         to_zone = tz.gettz(timezone("America/Bogota").zone)
@@ -997,25 +991,6 @@ class AccountInvoiceDianDocument(models.Model):
             return ad_zipped_file
 
         return True
-
-    def _get_SendTestSetAsync_values(self):
-        xml_soap_values = global_functions.get_xml_soap_values(
-            self.company_id.certificate_file, self.company_id.certificate_password
-        )
-        xml_soap_values["fileName"] = self.zipped_filename.replace(".zip", "")
-        xml_soap_values["contentFile"] = b64encode(self.zipped_file).decode("utf-8")
-        xml_soap_values["testSetId"] = self.company_id.test_set_id
-
-        return xml_soap_values
-
-    def _get_SendBillSync_values(self):
-        xml_soap_values = global_functions.get_xml_soap_values(
-            self.company_id.certificate_file, self.company_id.certificate_password
-        )
-        xml_soap_values["fileName"] = self.zipped_filename.replace(".zip", "")
-        xml_soap_values["contentFile"] = b64encode(self.zipped_file).decode("utf-8")
-
-        return xml_soap_values
 
     def _get_pdf_file(self):
         template_id = self.env["ir.actions.report"].browse(
@@ -1174,26 +1149,16 @@ class AccountInvoiceDianDocument(models.Model):
 
         return to_return
 
-    def _get_GetStatusZip_values(self):
+    def action_GetStatusZip(self):
+        wsdl = DIAN_URL["wsdl" + self.profile_execution_id]
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
         )
-
         xml_soap_values["trackId"] = self.zip_key
-
-        return xml_soap_values
-
-    def action_GetStatusZip(self):
-        wsdl = DIAN_URL["wsdl-hab"]
-
-        if self.company_id.profile_execution_id == "1":
-            wsdl = DIAN_URL["wsdl"]
-
-        GetStatusZip_values = self._get_GetStatusZip_values()
-        GetStatusZip_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
-            global_functions.get_template_xml(GetStatusZip_values, "GetStatusZip"),
-            GetStatusZip_values["Id"],
+            global_functions.get_template_xml(xml_soap_values, "GetStatusZip"),
+            xml_soap_values["Id"],
             self.company_id.certificate_file,
             self.company_id.certificate_password,
         )
@@ -1202,7 +1167,7 @@ class AccountInvoiceDianDocument(models.Model):
         for attempt in range(3):
             try:
                 response = post(
-                    wsdl,
+                    url=wsdl,
                     headers={"content-type": "application/soap+xml;charset=utf-8"},
                     data=etree.tostring(xml_soap_with_signature),
                     timeout=timeout,
@@ -1241,47 +1206,33 @@ class AccountInvoiceDianDocument(models.Model):
         if self._get_GetStatus(False):
             return True
 
-        msg1 = _(
-            "Unknown Error,\n\nStatus Code: %s,\nReason: %s,\n\nContact with your administrator "
-            "or you can choose a journal with a Contingency Checkbook E-Invoicing sequence "
-            "and change the Invoice Type to 'E-document of transmission - type 03'."
-        )
-        msg2 = _(
-            "Unknown Error,\n\n%s\n\nContact with your administrator "
-            "or you can choose a journal with a Contingency Checkbook E-Invoicing sequence "
-            "and change the Invoice Type to 'E-document of transmission - type 03'."
-        )
         b = "http://schemas.datacontract.org/2004/07/UploadDocumentResponse"
-        wsdl = DIAN_URL["wsdl-hab"]
+        wsdl = DIAN_URL["wsdl" + self.profile_execution_id]
+        xml_soap_values = global_functions.get_xml_soap_values(
+            self.company_id.certificate_file, self.company_id.certificate_password
+        )
+        xml_soap_values["fileName"] = self.zipped_filename.replace(".zip", "")
+        xml_soap_values["contentFile"] = b64encode(self.zipped_file).decode("utf-8")
 
-        if self.company_id.profile_execution_id == "1":
-            wsdl = DIAN_URL["wsdl"]
-            SendBillSync_values = self._get_SendBillSync_values()
-            SendBillSync_values["To"] = wsdl.replace("?wsdl", "")
-            xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
-                global_functions.get_template_xml(SendBillSync_values, "SendBillSync"),
-                SendBillSync_values["Id"],
-                self.company_id.certificate_file,
-                self.company_id.certificate_password,
-            )
+        if self.profile_execution_id == "1":
+            service = "SendBillSync"
         else:
-            SendTestSetAsync_values = self._get_SendTestSetAsync_values()
-            SendTestSetAsync_values["To"] = wsdl.replace("?wsdl", "")
-            xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
-                global_functions.get_template_xml(
-                    SendTestSetAsync_values, "SendTestSetAsync"
-                ),
-                SendTestSetAsync_values["Id"],
-                self.company_id.certificate_file,
-                self.company_id.certificate_password,
-            )
+            xml_soap_values["testSetId"] = self.company_id.test_set_id
+            service = "SendTestSetAsync"
 
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
+            global_functions.get_template_xml(xml_soap_values, service),
+            xml_soap_values["Id"],
+            self.company_id.certificate_file,
+            self.company_id.certificate_password,
+        )
         timeout = 10
 
         for attempt in range(3):
             try:
                 response = post(
-                    wsdl,
+                    url=wsdl,
                     headers={"content-type": "application/soap+xml;charset=utf-8"},
                     data=etree.tostring(xml_soap_with_signature),
                     timeout=timeout,
@@ -1290,7 +1241,7 @@ class AccountInvoiceDianDocument(models.Model):
                 if response.status_code == 200:
                     self.write({"state": "sent"})
 
-                    if self.company_id.profile_execution_id == "1":
+                    if self.profile_execution_id == "1":
                         self._get_status_response(response, True)
                     else:
                         root = etree.fromstring(response.text.encode("utf-8"))
@@ -1325,28 +1276,16 @@ class AccountInvoiceDianDocument(models.Model):
 
         return True
 
-    def _get_SendEventUpdateStatus_values(self):
+    def action_SendEventUpdateStatus(self):
+        wsdl = DIAN_URL["wsdl" + self.profile_execution_id]
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
         )
         xml_soap_values["contentFile"] = b64encode(self.zipped_file).decode("utf-8")
-
-        return xml_soap_values
-
-    def action_SendEventUpdateStatus(self):
-        b = "http://schemas.datacontract.org/2004/07/DianResponse"
-        wsdl = DIAN_URL["wsdl-hab"]
-
-        if self.company_id.profile_execution_id == "1":
-            wsdl = DIAN_URL["wsdl"]
-
-        SendEventUpdateStatus_values = self._get_SendEventUpdateStatus_values()
-        SendEventUpdateStatus_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
-            global_functions.get_template_xml(
-                SendEventUpdateStatus_values, "SendEventUpdateStatus"
-            ),
-            SendEventUpdateStatus_values["Id"],
+            global_functions.get_template_xml(xml_soap_values, "SendEventUpdateStatus"),
+            xml_soap_values["Id"],
             self.company_id.certificate_file,
             self.company_id.certificate_password,
         )
@@ -1405,26 +1344,16 @@ class AccountInvoiceDianDocument(models.Model):
 
         return True
 
-    def _get_GetStatus_values(self):
+    def _get_GetStatus(self, send_email):
+        wsdl = DIAN_URL["wsdl" + self.profile_execution_id]
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
         )
-
         xml_soap_values["trackId"] = self.cufe_cude
-
-        return xml_soap_values
-
-    def _get_GetStatus(self, send_email):
-        wsdl = DIAN_URL["wsdl-hab"]
-
-        if self.company_id.profile_execution_id == "1":
-            wsdl = DIAN_URL["wsdl"]
-
-        GetStatus_values = self._get_GetStatus_values()
-        GetStatus_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
-            global_functions.get_template_xml(GetStatus_values, "GetStatus"),
-            GetStatus_values["Id"],
+            global_functions.get_template_xml(xml_soap_values, "GetStatus"),
+            xml_soap_values["Id"],
             self.company_id.certificate_file,
             self.company_id.certificate_password,
         )
@@ -1477,13 +1406,18 @@ class AccountInvoiceDianDocument(models.Model):
     def action_process(self):
         if self.action_set_files():
             self.action_send_zipped_file()
-        else:
+
+        if self.state != "done":
             self.send_failure_email()
+
+            return False
 
         return True
 
     # TODO: 2.0
-    def _get_SendBillAttachmentAsync_values(self):
+    def action_SendBillAttachmentAsync(self):
+        b = "http://schemas.datacontract.org/2004/07/UploadDocumentResponse"
+        wsdl = DIAN_URL["wsdl" + self.profile_execution_id]
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
         )
@@ -1498,23 +1432,12 @@ class AccountInvoiceDianDocument(models.Model):
         zipfile.close()
         xml_soap_values["fileName"] = self.zipped_filename.replace(".zip", "")
         xml_soap_values["contentFile"] = b64encode(output.getvalue()).decode("uft-8")
-
-        return xml_soap_values
-
-    def action_SendBillAttachmentAsync(self):
-        b = "http://schemas.datacontract.org/2004/07/UploadDocumentResponse"
-        wsdl = DIAN_URL["wsdl-hab"]
-
-        if self.company_id.profile_execution_id == "1":
-            wsdl = DIAN_URL["wsdl"]
-
-        SendBillAttachmentAsync_values = self._get_SendBillAttachmentAsync_values()
-        SendBillAttachmentAsync_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
             global_functions.get_template_xml(
-                SendBillAttachmentAsync_values, "SendBillAttachmentAsync"
+                xml_soap_values, "SendBillAttachmentAsync"
             ),
-            SendBillAttachmentAsync_values["Id"],
+            xml_soap_values["Id"],
             self.company_id.certificate_file,
             self.company_id.certificate_password,
         )
@@ -1523,7 +1446,7 @@ class AccountInvoiceDianDocument(models.Model):
         for attempt in range(3):
             try:
                 response = post(
-                    wsdl,
+                    url=wsdl,
                     headers={"content-type": "application/soap+xml;charset=utf-8"},
                     data=etree.tostring(xml_soap_with_signature),
                     timeout=timeout,

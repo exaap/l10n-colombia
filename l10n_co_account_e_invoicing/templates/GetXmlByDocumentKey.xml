@@ -13,13 +13,13 @@
                 ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
                 wsu:Id="X509-{{Id}}">{{BinarySecurityToken}}</wsse:BinarySecurityToken>
         </wsse:Security>
-        <wsa:Action>http://wcf.dian.colombia/IWcfDianCustomerServices/GetStatusZip</wsa:Action>
+        <wsa:Action>http://wcf.dian.colombia/IWcfDianCustomerServices/GetXmlByDocumentKey</wsa:Action>
         <wsa:To wsu:Id="id-{{Id}}"
             xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">{{To}}</wsa:To>
     </soap:Header>
     <soap:Body>
-        <wcf:GetStatusZip>
+        <wcf:GetXmlByDocumentKey>
             <wcf:trackId>{{trackId}}</wcf:trackId>
-        </wcf:GetStatusZip>
+        </wcf:GetXmlByDocumentKey>
     </soap:Body>
 </soap:Envelope>

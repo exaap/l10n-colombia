@@ -1,11 +1,13 @@
 # Copyright 2024 Joan Marín <Github@JoanMarin>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl-3.0).
 
-from dateutil import tz
+from base64 import b64decode
 from datetime import datetime, timedelta
-from pytz import timezone
+from lxml import etree
+from requests import post, exceptions
+from . import global_functions
 from odoo import api, models, fields, SUPERUSER_ID, _
-from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError, UserError
 
 DIAN_TYPES = (
     "e-invoicing",
@@ -14,6 +16,15 @@ DIAN_TYPES = (
     "e-support_document",
     "e-support_document_credit_note",
 )
+DIAN_URL = {
+    "wsdl1": "https://vpfe.dian.gov.co/WcfDianCustomerServices.svc?wsdl",
+    "wsdl2": "https://vpfe-hab.dian.gov.co/WcfDianCustomerServices.svc?wsdl",
+}
+MSG_TIMEOUT = "DIAN service generates a timeout error."
+MSG_ERROR1 = (
+    "Unknown Error,\n\nStatus Code: %s,\nReason: %s\n\nContact with your administrator."
+)
+MSG_ERROR2 = "Unknown Error,\n\n%s\n\nContact with your administrator."
 
 
 class AccountInvoice(models.Model):
@@ -442,7 +453,9 @@ class AccountInvoice(models.Model):
         }
 
     def _get_invoice_lines(self):
-        return self.invoice_line_ids._get_invoice_lines(self.invoice_type_code)
+        linde_ids = self.invoice_line_ids.filtered(lambda x: not x.display_type)
+
+        return linde_ids._get_invoice_lines(self.invoice_type_code)
 
     def set_invoice_lines_price_reference(self):
         for line_id in self.invoice_line_ids:
@@ -478,6 +491,7 @@ class AccountInvoice(models.Model):
             invoice_type_code_04 = False
 
             if application_response_type:
+                invoice_id.action_GetXmlByDocumentKey(False)
                 dian_document_id = invoice_id.dian_document_ids.filtered(
                     lambda d: d.application_response_type == application_response_type
                 )
@@ -596,6 +610,92 @@ class AccountInvoice(models.Model):
             invoice_id.set_edi_document("034")
 
         return True
+
+    @api.multi
+    def action_GetXmlByDocumentKey(self, attachment=True):
+        wsdl = DIAN_URL["wsdl" + self.company_id.profile_execution_id]
+        xml_soap_values = global_functions.get_xml_soap_values(
+            self.company_id.certificate_file, self.company_id.certificate_password
+        )
+        xml_soap_values["trackId"] = self.supplier_uuid
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
+            global_functions.get_template_xml(xml_soap_values, "GetXmlByDocumentKey"),
+            xml_soap_values["Id"],
+            self.company_id.certificate_file,
+            self.company_id.certificate_password,
+        )
+        timeout = 10
+
+        for attempt in range(3):
+            try:
+                b = "http://schemas.datacontract.org/2004/07/EventResponse"
+                cac = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+                cbc = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+                msg = _("You cannot send events to cash invoices.")
+                XmlBytesBase64 = False
+                response = post(
+                    url=wsdl,
+                    headers={
+                        "Content-Type": "application/soap+xml",
+                        "accept": "*/*",
+                        "accept-encoding": "gzip, deflate",
+                        "action": "http://wcf.dian.colombia/IWcfDianCustomerServices/GetXmlByDocumentKey",
+                    },
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
+                )
+
+                if response.status_code == 200:
+                    status_code = "other"
+                    root = etree.fromstring(response.content)
+
+                    for element in root.iter("{%s}Code" % b):
+                        status_code = element.text
+
+                    if status_code != "100":
+                        continue
+
+                    for element in root.iter("{%s}XmlBytesBase64" % b):
+                        XmlBytesBase64 = element.text
+
+                    if not XmlBytesBase64:
+                        continue
+
+                    if attachment:
+                        self.env["ir.attachment"].create(
+                            {
+                                "name": self.supplier_uuid + ".xml",
+                                "datas_fname": self.supplier_uuid + ".xml",
+                                "type": "binary",
+                                "datas": XmlBytesBase64,
+                                "res_model": self._name,
+                                "res_id": self.id,
+                                "mimetype": "application/xml",
+                            }
+                        )
+                    else:
+                        xml = etree.fromstring(b64decode(XmlBytesBase64))
+
+                        for element in xml.iter("{%s}PaymentMeans" % cac):
+                            for subelement in element.iter("{%s}ID" % cbc):
+                                if subelement.text != "2":
+                                    raise UserError(msg)
+                else:
+                    raise ValidationError(
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(_(MSG_TIMEOUT))
+            except exceptions.RequestException as e:
+                raise ValidationError(_(MSG_ERROR2) % (e))
 
     @api.multi
     def invoice_validate(self):

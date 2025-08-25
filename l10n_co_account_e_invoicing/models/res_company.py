@@ -107,11 +107,12 @@ class ResCompany(models.Model):
 
         return rec
 
-    def _get_GetNumberingRange_values(self):
+    def action_GetNumberingRange(self):
+        wsdl = "https://vpfe.dian.gov.co/WcfDianCustomerServices.svc?wsdl"
+        s = "http://www.w3.org/2003/05/soap-envelope"
         xml_soap_values = global_functions.get_xml_soap_values(
             self.certificate_file, self.certificate_password
         )
-
         xml_soap_values["accountCode"] = self.partner_id.l10n_co_identification_document
         xml_soap_values["accountCodeT"] = (
             self.partner_id.l10n_co_identification_document
@@ -123,19 +124,10 @@ class ResCompany(models.Model):
                 self.technological_provider_id.l10n_co_identification_document
             )
 
-        return xml_soap_values
-
-    def action_GetNumberingRange(self):
-        wsdl = "https://vpfe.dian.gov.co/WcfDianCustomerServices.svc?wsdl"
-        s = "http://www.w3.org/2003/05/soap-envelope"
-
-        GetNumberingRange_values = self._get_GetNumberingRange_values()
-        GetNumberingRange_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
-            global_functions.get_template_xml(
-                GetNumberingRange_values, "GetNumberingRange"
-            ),
-            GetNumberingRange_values["Id"],
+            global_functions.get_template_xml(xml_soap_values, "GetNumberingRange"),
+            xml_soap_values["Id"],
             self.certificate_file,
             self.certificate_password,
         )
@@ -144,7 +136,7 @@ class ResCompany(models.Model):
         for attempt in range(3):
             try:
                 response = post(
-                    wsdl,
+                    url=wsdl,
                     headers={"content-type": "application/soap+xml;charset=utf-8"},
                     data=etree.tostring(xml_soap_with_signature),
                     timeout=timeout,
@@ -190,8 +182,9 @@ class ResCompany(models.Model):
 
             for dian_document_id in dian_document_ids:
                 try:
-                    dian_document_id.action_process()
-                    count += 1
+                    if dian_document_id.action_process():
+                        count += 1
+
                     if count == 10:
                         return True
                 except:

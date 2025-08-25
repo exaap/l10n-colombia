@@ -9,17 +9,16 @@
                 <field name="warn_inactive_certificate" invisible="1"/>
                 <div class="alert alert-error" role="alert"
                     style="margin-bottom:0px; background-color:#ff9e9e;"
-                    attrs="{'invisible': [('warn_remaining_certificate', '!=', True)]}"> The
-                    certificate for this company is nearby to expire.<br/>
+                    attrs="{'invisible': [('warn_remaining_certificate', '!=', True)]}"> The certificate for this
+                    company is nearby to expire.<br/>
                     <span
                         style="font-weight:bold;">Please, you must to inform the administration.</span>
                 </div>
                 <div class="alert alert-error" role="alert"
                     style="margin-bottom:0px; background-color:#ff9e9e;"
-                    attrs="{'invisible': [('warn_inactive_certificate', '!=', True)]}"> There is no
-                    an active certificate.<br/>
-                    <span style="font-weight:bold;">Please, you must to
-                    inform the administration.</span>
+                    attrs="{'invisible': [('warn_inactive_certificate', '!=', True)]}"> There is no an active
+                    certificate.<br/>
+                    <span style="font-weight:bold;">Please, you must to inform the administration.</span>
                 </div>
             </xpath>
 
@@ -93,17 +92,16 @@
                 <field name="warn_inactive_certificate" invisible="1"/>
                 <div class="alert alert-error" role="alert"
                     style="margin-bottom:0px; background-color:#ff9e9e;"
-                    attrs="{'invisible': [('warn_remaining_certificate', '!=', True)]}"> The
-                    certificate for this company is nearby to expire.<br/>
+                    attrs="{'invisible': [('warn_remaining_certificate', '!=', True)]}"> The certificate for this
+                    company is nearby to expire.<br/>
                     <span
                         style="font-weight:bold;">Please, you must to inform the administration.</span>
                 </div>
                 <div class="alert alert-error" role="alert"
                     style="margin-bottom:0px; background-color:#ff9e9e;"
-                    attrs="{'invisible': [('warn_inactive_certificate', '!=', True)]}"> There is no
-                    an active certificate.<br/>
-                    <span style="font-weight:bold;">Please, you must to
-                    inform the administration.</span>
+                    attrs="{'invisible': [('warn_inactive_certificate', '!=', True)]}"> There is no an active
+                    certificate.<br/>
+                    <span style="font-weight:bold;">Please, you must to inform the administration.</span>
                 </div>
             </xpath>
 
@@ -151,6 +149,9 @@
                                     string="Express Acceptance" type="object" class="oe_stat_button"
                                     icon="fa-check"
                                     attrs="{'invisible': [('dian_document_state', '!=', 'as_receipt')]}"/>
+                                <button name="action_GetXmlByDocumentKey" string="Get XML" type="object"
+                                    class="oe_stat_button" icon="fa-check"
+                                    attrs="{'invisible': [('supplier_uuid', '=', False)]}"/>
                             </div>
                         </group>
                         <group>
