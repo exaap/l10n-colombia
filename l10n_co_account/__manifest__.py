@@ -20,6 +20,7 @@
     "data": [
         "data/account.fiscal.responsibility.csv",
         "data/account.invoice.refund.reason.csv",
+        "data/account.payment.mean.code.csv",
         "data/account.tax.group.type.csv",
         "data/l10n_latam.identification.type.csv",
         "data/res.partner.industry.csv",
@@ -31,6 +32,7 @@
         "views/account_invoice_refund_reason_views.xml",
         "views/account_invoice_views.xml",
         "views/account_journal_views.xml",
+        "views/account_payment_mean_code_views.xml",
         "views/res_partner_industry_views.xml",
         "views/res_partner_views.xml",
         "views/uom_uom_views.xml",

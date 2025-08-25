@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_account_payment_mean_manager,account.payment.mean.manager,model_account_payment_mean,account.group_account_manager,1,1,1,1
-access_account_payment_mean_users,account.payment.mean.users,model_account_payment_mean,,1,0,0,0
-access_account_payment_mean_code_manager,account.payment.mean.code.manager,model_account_payment_mean_code,account.group_account_manager,1,1,1,1
-access_account_payment_mean_code_users,account.payment.mean.code.users,model_account_payment_mean_code,,1,0,0,0

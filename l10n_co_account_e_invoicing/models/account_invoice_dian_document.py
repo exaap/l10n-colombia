@@ -417,7 +417,7 @@ class AccountInvoiceDianDocument(models.Model):
             "ActualDeliveryDate": ActualDeliveryDate,
             "ActualDeliveryTime": ActualDeliveryTime,
             "DeliveryTerms": {"LossRiskResponsibilityCode": False, "LossRisk": False},
-            "PaymentMeansID": self.invoice_id.payment_mean_id.code,
+            "PaymentMeansID": self.invoice_id.payment_mean,
             "PaymentMeansCode": self.invoice_id.payment_mean_code_id.code,
             "PaymentDueDate": self.invoice_id.date_due,
             "PaymentExchangeRate": PaymentExchangeRate,
@@ -1009,8 +1009,8 @@ class AccountInvoiceDianDocument(models.Model):
         self.invoice_id.write(
             {"dian_document_mail_subject": self._get_dian_document_mail_subject()}
         )
-        template_id = self.env["mail.template"].browse(
-            self.env.ref("l10n_co_account_e_invoicing.email_template_for_einvoice").id
+        template_id = self.env.ref(
+            "l10n_co_account_e_invoicing.email_template_for_einvoice"
         )
         mail_id = template_id.send_mail(self.id, force_send=True)
         mail_id = self.env["mail.mail"].browse(mail_id)

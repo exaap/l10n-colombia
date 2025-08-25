@@ -22,6 +22,11 @@
                 <attribute name="icon">fa-file</attribute>
                 <attribute name="groups">l10n_co_account.group_view_refund_invoice_buttons</attribute>
             </button>
+
+            <field name="date_due" position="after">
+                <field name="payment_mean"/>
+                <field name="payment_mean_code_id" options="{'no_create': True, 'no_open': True}"/>
+            </field>
         </field>
     </record>
 
@@ -48,6 +53,11 @@
                 <attribute name="attrs">{'invisible': 1}</attribute>
                 <attribute name="groups">l10n_co_account.group_view_refund_invoice_buttons</attribute>
             </button>
+
+            <field name="date_due" position="after">
+                <field name="payment_mean"/>
+                <field name="payment_mean_code_id" options="{'no_create': True, 'no_open': True}"/>
+            </field>
         </field>
     </record>
 </odoo>

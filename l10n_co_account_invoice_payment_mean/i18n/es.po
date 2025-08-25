@@ -341,12 +341,6 @@ msgid "Payment Means"
 msgstr "Medios de Pago"
 
 #. module: l10n_co_account_invoice_payment_mean
-#: model:ir.model,name:l10n_co_account_invoice_payment_mean.model_account_payment_mean
-#: model:ir.model.fields,field_description:l10n_co_account_invoice_payment_mean.field_account_invoice__payment_mean_id
-msgid "Payment Method"
-msgstr "Método de pago"
-
-#. module: l10n_co_account_invoice_payment_mean
 #: model:ir.actions.act_window,name:l10n_co_account_invoice_payment_mean.account_payment_mean_action
 #: model:ir.ui.menu,name:l10n_co_account_invoice_payment_mean.account_payment_mean_menu
 #: model_terms:ir.ui.view,arch_db:l10n_co_account_invoice_payment_mean.account_payment_mean_view_form

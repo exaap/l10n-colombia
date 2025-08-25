@@ -6,14 +6,44 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 12.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-30 06:48+0000\n"
-"PO-Revision-Date: 2024-08-30 06:48+0000\n"
+"POT-Creation-Date: 2025-08-25 22:43+0000\n"
+"PO-Revision-Date: 2025-08-25 22:43+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_002
+msgid "ACH Credit"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_006
+msgid "ACH Demand Credit"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_005
+msgid "ACH Demand Credit Reversal"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_007
+msgid "ACH Demand Debit"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_004
+msgid "ACH Demand Debit Reversal"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_003
+msgid "ACH debit"
+msgstr ""
 
 #. module: l10n_co_account
 #: model:ir.model,name:l10n_co_account.model_account_invoice_refund_reason
@@ -33,8 +63,115 @@ msgid "Add Debit Note"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_023
+msgid "Bank check"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_042
+msgid "Bank deposit"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_045
+msgid "Banking Credit Transfer"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_047
+msgid "Banking Debit Transfer"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_021
+msgid "Banking project"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_071
+msgid "Bonuses"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_015
+msgid "Bookentry Credit"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_016
+msgid "Bookentry Debit"
+msgstr ""
+
+#. module: l10n_co_account
+#: selection:account.invoice,payment_mean:0
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_010
+msgid "Cash"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_032
+msgid "Cash Concentration / Credit Disbursement plus (CCD+)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_033
+msgid "Cash Concentration / Debit Disbursement plus (CCD+)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_041
+msgid "Cash concentration / Credit Disbursement plus (CCD+)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_043
+msgid "Cash concentration / Debit Disbursement plus (CCD+)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_035
+msgid "Cash concentration savings / Credit Disbursement (CCD)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_036
+msgid "Cash concentration savings / Debit Disbursement (CCD)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_017
+msgid "Cash demand concentration / Credit Disbursement (CCD)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_018
+msgid "Cash demand concentration / Disbursement (CCD) debit"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_022
+msgid "Certified banking project"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_025
+msgid "Certified check"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_020
+msgid "Check"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_097
+msgid "Clearing between partner"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility__code
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_invoice_refund_reason__code
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__code
 #: model:ir.model.fields,field_description:l10n_co_account.field_res_partner_industry__code
 #: model:ir.model.fields,field_description:l10n_co_account.field_uom_uom__code
 msgid "Code"
@@ -53,6 +190,16 @@ msgid "Contact"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_038
+msgid "Corporate Business Payment Savings Debit (CTP)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_019
+msgid "Corporate business Payment Credit (CTP)"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_invoice__reason_id
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_invoice_debitnote__reason_id
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_invoice_refund__reason_id
@@ -61,18 +208,46 @@ msgstr ""
 
 #. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility__create_uid
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility__create_date
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__create_date
 msgid "Created on"
+msgstr ""
+
+#. module: l10n_co_account
+#: selection:account.invoice,payment_mean:0
+msgid "Credit"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_048
+msgid "Credit Card"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_028
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_039
+msgid "Credit Corporate Exchange Business (CTX)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_011
+msgid "Credit Credit Reversal"
 msgstr ""
 
 #. module: l10n_co_account
 #: selection:account.invoice.refund.reason,type:0
 #: model:ir.model,name:l10n_co_account.model_account_invoice_refund
 msgid "Credit Note"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_030
+msgid "Credit Transfer"
 msgstr ""
 
 #. module: l10n_co_account
@@ -88,13 +263,35 @@ msgid "DIAN Code"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_049
+msgid "Debit Card"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_027
+msgid "Debit Corporate Business Payment (CTP)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_029
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_040
+msgid "Debit Corporate Exchange Business (CTX)"
+msgstr ""
+
+#. module: l10n_co_account
 #: selection:account.invoice.refund.reason,type:0
 #: model:ir.model,name:l10n_co_account.model_account_invoice_debitnote
 msgid "Debit Note"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_031
+msgid "Debit Transfer"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility__display_name
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -114,7 +311,13 @@ msgid "Fiscal Responsibilities"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_051
+msgid "French banking standard telex"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility__id
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__id
 msgid "ID"
 msgstr ""
 
@@ -158,6 +361,16 @@ msgid "Industry"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_001
+msgid "Instrument not defined"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_046
+msgid "Interbanking Credit Transfer"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model,name:l10n_co_account.model_account_invoice
 msgid "Invoice"
 msgstr ""
@@ -169,18 +382,31 @@ msgid "Juridical Person"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_008
+msgid "Keep"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility____last_update
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code____last_update
 msgid "Last Modified on"
 msgstr ""
 
 #. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility__write_uid
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility__write_date
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__write_date
 msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_026
+msgid "Local Check"
 msgstr ""
 
 #. module: l10n_co_account
@@ -190,10 +416,21 @@ msgid "Main Industry"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_000
+msgid "Mutual agreement"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_fiscal_responsibility__name
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_invoice_refund_reason__name
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__name
 #: model:ir.model.fields,field_description:l10n_co_account.field_res_partner_industry__name
 msgid "Name"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_009
+msgid "National or Regional Clearing"
 msgstr ""
 
 #. module: l10n_co_account
@@ -208,6 +445,16 @@ msgid "No aplica"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_044
+msgid "Note would change"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_024
+msgid "Note would change waiting for acceptance"
+msgstr ""
+
+#. module: l10n_co_account
 #: selection:res.partner.industry,type:0
 msgid "Other"
 msgstr ""
@@ -218,12 +465,137 @@ msgid "Parent"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_037
+msgid "Payment Corporate Business Savings Credit (CTP)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_invoice__payment_mean_code_id
+msgid "Payment Mean"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:ir.actions.act_window,name:l10n_co_account.account_payment_mean_code_action
+#: model:ir.model,name:l10n_co_account.model_account_payment_mean_code
+#: model:ir.ui.menu,name:l10n_co_account.account_payment_mean_code_menu
+#: model_terms:ir.ui.view,arch_db:l10n_co_account.account_payment_mean_code_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_account.account_payment_mean_code_view_tree
+msgid "Payment Means"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:ir.model.fields,field_description:l10n_co_account.field_account_invoice__payment_mean
+msgid "Payment Method"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_034
+msgid "Payment and pre-agreed deposit (PPD)"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_096
+msgid "Payment method requested not used"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_050
+msgid "Post-twist"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model,name:l10n_co_account.model_uom_uom
 msgid "Product Unit of Measure"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_060
+msgid "Promissory note"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_065
+msgid "Promissory note signed by a bank endorsed by another bank"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_067
+msgid "Promissory note signed by a third party endorsed by a bank"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_064
+msgid "Promissory note signed by the bank"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_061
+msgid "Promissory note signed by the creditor"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_063
+msgid "Promissory note signed by the creditor, endorsed by a third party"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_062
+msgid "Promissory note signed by the creditor, endorsed by the bank"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_093
+msgid "Referenced twist"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_077
+msgid "Retirement of a note by the creditor about a third party"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_078
+msgid "Retirement of a note by the creditor about a third party endorsed by a bank"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_076
+msgid "Retirement of a note by the creditor, about a bank endorsed by a third party"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_070
+msgid "Retirement of note by the creditor"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_074
+msgid "Retirement of note by the creditor about a bank"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_075
+msgid "Retirement of note by the creditor, endorsed by another bank"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_012
+msgid "Reversal Debit Savings"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_013
+msgid "Savings Credit"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_014
+msgid "Savings Debit"
+msgstr ""
+
+#. module: l10n_co_account
 #: model_terms:ir.ui.view,arch_db:l10n_co_account.account_fiscal_responsibility_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_account.account_payment_mean_code_view_search
 msgid "Search"
 msgstr ""
 
@@ -231,6 +603,11 @@ msgstr ""
 #: model:ir.model.fields,field_description:l10n_co_account.field_res_partner__secondary_industry_ids
 #: model:ir.model.fields,field_description:l10n_co_account.field_res_users__secondary_industry_ids
 msgid "Secondary Industries"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_066
+msgid "Signed promissory note"
 msgstr ""
 
 #. module: l10n_co_account
@@ -251,15 +628,52 @@ msgid "The code must be unique!"
 msgstr ""
 
 #. module: l10n_co_account
+#: code:addons/l10n_co_account/models/account_payment_mean_code.py:18
+#: sql_constraint:account.payment.mean.code:0
+#, python-format
+msgid "The combination of code and name must be unique"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model.fields,help:l10n_co_account.field_res_partner__l10n_latam_identification_type_id
 #: model:ir.model.fields,help:l10n_co_account.field_res_users__l10n_latam_identification_type_id
 msgid "The type of identification"
 msgstr ""
 
 #. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_091
+msgid "Transferable banking note"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_092
+msgid "Transferable local check"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_095
+msgid "Twist Open Format"
+msgstr ""
+
+#. module: l10n_co_account
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_invoice_refund_reason__type
 #: model:ir.model.fields,field_description:l10n_co_account.field_res_partner_industry__type
 msgid "Type"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_053
+msgid "Urgent Treasury Payment"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_052
+msgid "Urgent business payment"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_094
+msgid "Urgent twist"
 msgstr ""
 
 #. module: l10n_co_account
@@ -276,5 +690,10 @@ msgstr ""
 #. module: l10n_co_account
 #: model:res.groups,name:l10n_co_account.group_view_refund_invoice_buttons
 msgid "View Refund Invoice Buttons"
+msgstr ""
+
+#. module: l10n_co_account
+#: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_072
+msgid "Vouchers"
 msgstr ""
 

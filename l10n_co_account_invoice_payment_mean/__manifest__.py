@@ -10,14 +10,7 @@
     "license": "AGPL-3",
     "summary": "Este módulo tiene las formas y medios de pago identificados "
     "por la DIAN para la localizacion Colombiana",
-    "depends": ["account"],
-    "data": [
-        "security/ir.model.access.csv",
-        "data/account_payment_mean_data.xml",
-        "data/account_payment_mean_code_data.xml",
-        "views/account_payment_mean_views.xml",
-        "views/account_payment_mean_code_views.xml",
-        "views/account_invoice_views.xml",
-    ],
+    "depends": ["l10n_co_account"],
+    "data": [],
     "installable": True,
 }

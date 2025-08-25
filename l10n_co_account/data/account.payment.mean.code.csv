@@ -1,0 +1,78 @@
+id,code,name
+account_payment_mean_code_001,1,Instrument not defined
+account_payment_mean_code_002,2,ACH Credit
+account_payment_mean_code_003,3,ACH debit
+account_payment_mean_code_004,4,ACH Demand Debit Reversal
+account_payment_mean_code_005,5,ACH Demand Credit Reversal
+account_payment_mean_code_006,6,ACH Demand Credit
+account_payment_mean_code_007,7,ACH Demand Debit
+account_payment_mean_code_008,8,Keep
+account_payment_mean_code_009,9,National or Regional Clearing
+account_payment_mean_code_010,10,Cash
+account_payment_mean_code_011,11,Credit Credit Reversal
+account_payment_mean_code_012,12,Reversal Debit Savings
+account_payment_mean_code_013,13,Savings Credit
+account_payment_mean_code_014,14,Savings Debit
+account_payment_mean_code_015,15,Bookentry Credit
+account_payment_mean_code_016,16,Bookentry Debit
+account_payment_mean_code_017,17,Cash demand concentration / Credit Disbursement (CCD)
+account_payment_mean_code_018,18,Cash demand concentration / Disbursement (CCD) debit
+account_payment_mean_code_019,19,Corporate business Payment Credit (CTP)
+account_payment_mean_code_020,20,Check
+account_payment_mean_code_021,21,Banking project
+account_payment_mean_code_022,22,Certified banking project
+account_payment_mean_code_023,23,Bank check
+account_payment_mean_code_024,24,Note would change waiting for acceptance
+account_payment_mean_code_025,25,Certified check
+account_payment_mean_code_026,26,Local Check
+account_payment_mean_code_027,27,Debit Corporate Business Payment (CTP)
+account_payment_mean_code_028,28,Credit Corporate Exchange Business (CTX)
+account_payment_mean_code_029,29,Debit Corporate Exchange Business (CTX)
+account_payment_mean_code_030,30,Credit Transfer
+account_payment_mean_code_031,31,Debit Transfer
+account_payment_mean_code_032,32,Cash Concentration / Credit Disbursement plus (CCD+)
+account_payment_mean_code_033,33,Cash Concentration / Debit Disbursement plus (CCD+)
+account_payment_mean_code_034,34,Payment and pre-agreed deposit (PPD)
+account_payment_mean_code_035,35,Cash concentration savings / Credit Disbursement (CCD)
+account_payment_mean_code_036,36,Cash concentration savings / Debit Disbursement (CCD)
+account_payment_mean_code_037,37,Payment Corporate Business Savings Credit (CTP)
+account_payment_mean_code_038,38,Corporate Business Payment Savings Debit (CTP)
+account_payment_mean_code_039,39,Credit Corporate Exchange Business (CTX)
+account_payment_mean_code_040,40,Debit Corporate Exchange Business (CTX)
+account_payment_mean_code_041,41,Cash concentration / Credit Disbursement plus (CCD+)
+account_payment_mean_code_042,42,Bank deposit
+account_payment_mean_code_043,43,Cash concentration / Debit Disbursement plus (CCD+)
+account_payment_mean_code_044,44,Note would change
+account_payment_mean_code_045,45,Banking Credit Transfer
+account_payment_mean_code_046,46,Interbanking Credit Transfer
+account_payment_mean_code_047,47,Banking Debit Transfer
+account_payment_mean_code_048,48,Credit Card
+account_payment_mean_code_049,49,Debit Card
+account_payment_mean_code_050,50,Post-twist
+account_payment_mean_code_051,51,French banking standard telex
+account_payment_mean_code_052,52,Urgent business payment
+account_payment_mean_code_053,53,Urgent Treasury Payment
+account_payment_mean_code_060,60,Promissory note
+account_payment_mean_code_061,61,Promissory note signed by the creditor
+account_payment_mean_code_062,62,"Promissory note signed by the creditor, endorsed by the bank"
+account_payment_mean_code_063,63,"Promissory note signed by the creditor, endorsed by a third party"
+account_payment_mean_code_064,64,Promissory note signed by the bank
+account_payment_mean_code_065,65,Promissory note signed by a bank endorsed by another bank
+account_payment_mean_code_066,66,Signed promissory note
+account_payment_mean_code_067,67,Promissory note signed by a third party endorsed by a bank
+account_payment_mean_code_070,70,Retirement of note by the creditor
+account_payment_mean_code_071,71,Bonuses
+account_payment_mean_code_072,72,Vouchers
+account_payment_mean_code_074,74,Retirement of note by the creditor about a bank
+account_payment_mean_code_075,75,"Retirement of note by the creditor, endorsed by another bank"
+account_payment_mean_code_076,76,"Retirement of a note by the creditor, about a bank endorsed by a third party"
+account_payment_mean_code_077,77,Retirement of a note by the creditor about a third party
+account_payment_mean_code_078,78,Retirement of a note by the creditor about a third party endorsed by a bank
+account_payment_mean_code_091,91,Transferable banking note
+account_payment_mean_code_092,92,Transferable local check
+account_payment_mean_code_093,93,Referenced twist
+account_payment_mean_code_094,94,Urgent twist
+account_payment_mean_code_095,95,Twist Open Format
+account_payment_mean_code_096,96,Payment method requested not used
+account_payment_mean_code_097,97,Clearing between partner
+account_payment_mean_code_000,ZZZ,Mutual agreement

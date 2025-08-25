@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
     <record id="account_payment_mean_code_view_tree" model="ir.ui.view">
         <field name="model">account.payment.mean.code</field>
         <field name="arch" type="xml">
             <tree string="Payment Means">
-                <field name='name'/>
-                <field name='code'/>
+                <field name="name"/>
+                <field name="code"/>
             </tree>
         </field>
     </record>
@@ -15,8 +14,8 @@
         <field name="model">account.payment.mean.code</field>
         <field name="arch" type="xml">
             <search string="Search">
-                <field name="name" filter_domain="[('name','ilike',self)]"/>
-                <field name="code" filter_domain="[('code','ilike',self)]"/>
+                <field name="name" filter_domain="[('name', 'ilike', self)]"/>
+                <field name="code" filter_domain="[('code', 'ilike', self)]"/>
             </search>
         </field>
     </record>
@@ -26,8 +25,8 @@
         <field name="arch" type="xml">
             <form string="Payment Means">
                 <group>
-                    <field name='name' required='1'/>
-                    <field name='code' required='1'/>
+                    <field name="name" required="1"/>
+                    <field name="code" required="1"/>
                 </group>
             </form>
         </field>
@@ -43,6 +42,6 @@
         <field name="search_view_id" ref="account_payment_mean_code_view_search"/>
     </record>
 
-    <menuitem id="account_payment_mean_code_menu" name="Payment Means" parent="l10n_co_account_payment_mean_menu" action="account_payment_mean_code_action" sequence="2"/>
-
+    <menuitem id="account_payment_mean_code_menu" name="Payment Means" action="account_payment_mean_code_action"
+        parent="account.account_account_menu" sequence="6"/>
 </odoo>
