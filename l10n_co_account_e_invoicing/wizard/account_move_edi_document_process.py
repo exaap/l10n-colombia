@@ -11,7 +11,7 @@ class AccountMoveEdiDocumentProcess(models.TransientModel):
 
     action = fields.Selection(
         selection=[
-            ("e-invocie_receipt", "E-invoice Receipt"),
+            ("e-invoice_receipt", "E-invoice Receipt"),
             ("as_receipt", "Assets and/or Services Receipt"),
             ("express_acceptance", "Express Acceptance"),
         ],
@@ -30,13 +30,13 @@ class AccountMoveEdiDocumentProcess(models.TransientModel):
                 continue
 
             if (
-                invoice_action == "e-invocie_receipt"
+                invoice_action == "e-invoice_receipt"
                 and not invoice_id.dian_document_state
             ):
                 invoice_id.action_ApplicationResponse_030()
             elif (
                 invoice_action == "as_receipt"
-                and invoice_id.dian_document_state == "e-invocie_receipt"
+                and invoice_id.dian_document_state == "e-invoice_receipt"
             ):
                 invoice_id.action_ApplicationResponse_032()
             elif (

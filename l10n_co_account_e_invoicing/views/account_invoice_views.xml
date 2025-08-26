@@ -45,6 +45,11 @@
                     groups="l10n_co_account_e_invoicing.group_view_dian_documents">
                     <group>
                         <group>
+                            <field name="uuid"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
                             <label for="dian_document_state"/>
                             <div>
                                 <field name="dian_document_state"/>
@@ -52,6 +57,12 @@
                                     string="Tacit Acceptance" type="object" class="oe_stat_button"
                                     icon="fa-check"
                                     attrs="{'invisible': [('dian_document_state', '!=', 'as_receipt')]}"/>
+                                <button name="action_GetXmlByDocumentKey" string="Get XML" type="object"
+                                    class="oe_stat_button" icon="fa-check"
+                                    attrs="{'invisible': [('uuid', '=', False)]}"/>
+                                <button name="action_GetStatus" string="Get Status" type="object"
+                                    class="oe_stat_button" icon="fa-check"
+                                    attrs="{'invisible': [('uuid', '=', False)]}"/>
                             </div>
                         </group>
                     </group>
@@ -144,7 +155,7 @@
                                 <button name="action_ApplicationResponse_032"
                                     string="Assets and/or Services Receipt" type="object"
                                     class="oe_stat_button" icon="fa-check"
-                                    attrs="{'invisible': [('dian_document_state', '!=', 'e-invocie_receipt')]}"/>
+                                    attrs="{'invisible': [('dian_document_state', '!=', 'e-invoice_receipt')]}"/>
                                 <button name="action_ApplicationResponse_033"
                                     string="Express Acceptance" type="object" class="oe_stat_button"
                                     icon="fa-check"
@@ -152,13 +163,16 @@
                                 <button name="action_GetXmlByDocumentKey" string="Get XML" type="object"
                                     class="oe_stat_button" icon="fa-check"
                                     attrs="{'invisible': [('supplier_uuid', '=', False)]}"/>
+                                <button name="action_GetStatus" string="Get Status" type="object"
+                                    class="oe_stat_button" icon="fa-check"
+                                    attrs="{'invisible': [('supplier_uuid', '=', False)]}"/>
                             </div>
                         </group>
                         <group>
                             <field name="dian_claim"
                                 attrs="{
-                                    'invisible': [('dian_document_state', 'not in', ('as_receipt', 'e-invocie_claim'))],
-                                    'readonly': [('dian_document_state', '=', 'e-invocie_claim')]}"/>
+                                    'invisible': [('dian_document_state', 'not in', ('as_receipt', 'e-invoice_claim'))],
+                                    'readonly': [('dian_document_state', '=', 'e-invoice_claim')]}"/>
                         </group>
                     </group>
                     <group>

@@ -1073,9 +1073,9 @@ class AccountInvoiceDianDocument(models.Model):
                         self.write({"state": "done"})
 
                         if self.application_response_type == "030":
-                            dian_document_state = "e-invocie_receipt"
+                            dian_document_state = "e-invoice_receipt"
                         elif self.application_response_type == "031":
-                            dian_document_state = "e-invocie_claim"
+                            dian_document_state = "e-invoice_claim"
                         elif self.application_response_type == "032":
                             dian_document_state = "as_receipt"
                         elif self.application_response_type == "033":

@@ -196,10 +196,11 @@ class AccountInvoice(models.Model):
     dian_document_state = fields.Selection(
         selection=[
             ("dian_acceptance", "DIAN Acceptance"),
+            ("dian_acceptance_cash", "DIAN Acceptance Cash"),
             ("dian_rejection", "DIAN Rejection"),
-            ("e-invocie_receipt", "E-invoice Receipt"),
+            ("e-invoice_receipt", "E-invoice Receipt"),
             ("as_receipt", "Assets and/or Services Receipt"),
-            ("e-invocie_claim", "E-invoice Claim"),
+            ("e-invoice_claim", "E-invoice Claim"),
             ("express_acceptance", "Express Acceptance"),
             ("tacit_acceptance", "Tacit Acceptance"),
         ],
@@ -208,6 +209,7 @@ class AccountInvoice(models.Model):
     )
     dian_document_mail_subject = fields.Char(string="Mail Subject", copy=False)
     supplier_uuid = fields.Char(string="Supplier CUFE", size=96)
+    uuid = fields.Char(string="CUFE/CUDE/CUDS")
     dian_claim = fields.Selection(
         selection=[
             ("01", "Documento con inconsistencias"),
@@ -491,7 +493,6 @@ class AccountInvoice(models.Model):
             invoice_type_code_04 = False
 
             if application_response_type:
-                invoice_id.action_GetXmlByDocumentKey(False)
                 dian_document_id = invoice_id.dian_document_ids.filtered(
                     lambda d: d.application_response_type == application_response_type
                 )
@@ -579,6 +580,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_ApplicationResponse_030(self):
         for invoice_id in self:
+            invoice_id.action_GetXmlByDocumentKey(False)
             invoice_id.set_edi_document("030")
 
         return True
@@ -611,13 +613,12 @@ class AccountInvoice(models.Model):
 
         return True
 
-    @api.multi
     def action_GetXmlByDocumentKey(self, attachment=True):
         wsdl = DIAN_URL["wsdl" + self.company_id.profile_execution_id]
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
         )
-        xml_soap_values["trackId"] = self.supplier_uuid
+        xml_soap_values["trackId"] = self.uuid or self.supplier_uuid
         xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
             global_functions.get_template_xml(xml_soap_values, "GetXmlByDocumentKey"),
@@ -632,7 +633,7 @@ class AccountInvoice(models.Model):
                 b = "http://schemas.datacontract.org/2004/07/EventResponse"
                 cac = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
                 cbc = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-                msg = _("You cannot send events to cash invoices.")
+                msg = _("Invalid CUFE/CUDE.")
                 XmlBytesBase64 = False
                 response = post(
                     url=wsdl,
@@ -660,13 +661,13 @@ class AccountInvoice(models.Model):
                         XmlBytesBase64 = element.text
 
                     if not XmlBytesBase64:
-                        continue
+                        raise UserError(msg)
 
                     if attachment:
                         self.env["ir.attachment"].create(
                             {
-                                "name": self.supplier_uuid + ".xml",
-                                "datas_fname": self.supplier_uuid + ".xml",
+                                "name": xml_soap_values["trackId"] + ".xml",
+                                "datas_fname": xml_soap_values["trackId"] + ".xml",
                                 "type": "binary",
                                 "datas": XmlBytesBase64,
                                 "res_model": self._name,
@@ -680,7 +681,77 @@ class AccountInvoice(models.Model):
                         for element in xml.iter("{%s}PaymentMeans" % cac):
                             for subelement in element.iter("{%s}ID" % cbc):
                                 if subelement.text != "2":
-                                    raise UserError(msg)
+                                    self.write(
+                                        {"dian_document_state": "dian_acceptance_cash"}
+                                    )
+                else:
+                    raise ValidationError(
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(_(MSG_TIMEOUT))
+            except exceptions.RequestException as e:
+                raise ValidationError(_(MSG_ERROR2) % (e))
+
+    def action_GetStatus(self):
+        wsdl = DIAN_URL["wsdl" + self.company_id.profile_execution_id]
+        xml_soap_values = global_functions.get_xml_soap_values(
+            self.company_id.certificate_file, self.company_id.certificate_password
+        )
+        xml_soap_values["trackId"] = self.uuid or self.supplier_uuid
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
+            global_functions.get_template_xml(xml_soap_values, "GetStatus"),
+            xml_soap_values["Id"],
+            self.company_id.certificate_file,
+            self.company_id.certificate_password,
+        )
+        timeout = 10
+
+        for attempt in range(3):
+            try:
+                b = "http://schemas.datacontract.org/2004/07/DianResponse"
+                response = post(
+                    url=wsdl,
+                    headers={
+                        "Content-Type": "application/soap+xml",
+                        "accept": "*/*",
+                        "accept-encoding": "gzip, deflate",
+                        "action": "http://wcf.dian.colombia/IWcfDianCustomerServices/GetStatus",
+                    },
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
+                )
+
+                if response.status_code == 200:
+                    status_code = "other"
+                    root = etree.fromstring(response.content)
+
+                    for element in root.iter("{%s}StatusCode" % b):
+                        status_code = element.text
+
+                    if status_code == "00":
+                        for element in root.iter("{%s}XmlBase64Bytes" % b):
+                            self.env["ir.attachment"].create(
+                                {
+                                    "name": "ar" + xml_soap_values["trackId"] + ".xml",
+                                    "datas_fname": "ar"
+                                    + xml_soap_values["trackId"]
+                                    + ".xml",
+                                    "type": "binary",
+                                    "datas": element.text,
+                                    "res_model": self._name,
+                                    "res_id": self.id,
+                                    "mimetype": "application/xml",
+                                }
+                            )
                 else:
                     raise ValidationError(
                         _(MSG_ERROR1) % (response.status_code, response.reason)
