@@ -12,10 +12,11 @@ class AccountMoveEdiDocumentProcess(models.TransientModel):
     action = fields.Selection(
         selection=[
             ("e-invoice_receipt", "E-invoice Receipt"),
-            ("as_receipt", "Assets and/or Services Receipt"),
+            ("goods_services_receipt", "Goods and/or Services Receipt"),
             ("express_acceptance", "Express Acceptance"),
         ],
         string="Action",
+        required=True,
     )
 
     @api.multi
@@ -26,7 +27,7 @@ class AccountMoveEdiDocumentProcess(models.TransientModel):
         invoice_ids = invoice_obj.browse(record_ids)
 
         for invoice_id in invoice_ids:
-            if not invoice_id.supplier_uuid:
+            if invoice_id.sequence_resolution_id or not invoice_id.l10n_co_uuid:
                 continue
 
             if (
@@ -35,13 +36,13 @@ class AccountMoveEdiDocumentProcess(models.TransientModel):
             ):
                 invoice_id.action_ApplicationResponse_030()
             elif (
-                invoice_action == "as_receipt"
+                invoice_action == "goods_services_receipt"
                 and invoice_id.dian_document_state == "e-invoice_receipt"
             ):
                 invoice_id.action_ApplicationResponse_032()
             elif (
                 invoice_action == "express_acceptance"
-                and invoice_id.dian_document_state == "as_receipt"
+                and invoice_id.dian_document_state == "goods_services_receipt"
             ):
                 invoice_id.action_ApplicationResponse_033()
 

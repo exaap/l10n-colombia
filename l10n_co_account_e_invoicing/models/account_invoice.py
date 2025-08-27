@@ -20,11 +20,17 @@ DIAN_URL = {
     "wsdl1": "https://vpfe.dian.gov.co/WcfDianCustomerServices.svc?wsdl",
     "wsdl2": "https://vpfe-hab.dian.gov.co/WcfDianCustomerServices.svc?wsdl",
 }
-MSG_TIMEOUT = "DIAN service generates a timeout error."
-MSG_ERROR1 = (
+MSG_UUID = _("Invalid CUFE/CUDE/CUDS.")
+MSG_TIMEOUT = _("DIAN service generates a timeout error.")
+MSG_ERROR1 = _(
     "Unknown Error,\n\nStatus Code: %s,\nReason: %s\n\nContact with your administrator."
 )
-MSG_ERROR2 = "Unknown Error,\n\n%s\n\nContact with your administrator."
+MSG_ERROR2 = _("Unknown Error,\n\n%s\n\nContact with your administrator.")
+XMLNS = {
+    "b": "http://schemas.datacontract.org/2004/07/DianResponse",
+    "cac": "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2",
+    "cbc": "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
+}
 
 
 class AccountInvoice(models.Model):
@@ -199,7 +205,7 @@ class AccountInvoice(models.Model):
             ("dian_acceptance_cash", "DIAN Acceptance Cash"),
             ("dian_rejection", "DIAN Rejection"),
             ("e-invoice_receipt", "E-invoice Receipt"),
-            ("as_receipt", "Assets and/or Services Receipt"),
+            ("goods_services_receipt", "Goods and/or Services Receipt"),
             ("e-invoice_claim", "E-invoice Claim"),
             ("express_acceptance", "Express Acceptance"),
             ("tacit_acceptance", "Tacit Acceptance"),
@@ -208,8 +214,7 @@ class AccountInvoice(models.Model):
         copy=False,
     )
     dian_document_mail_subject = fields.Char(string="Mail Subject", copy=False)
-    supplier_uuid = fields.Char(string="Supplier CUFE", size=96)
-    uuid = fields.Char(string="CUFE/CUDE/CUDS")
+    l10n_co_uuid = fields.Char(string="CUFE/CUDE/CUDS")
     dian_claim = fields.Selection(
         selection=[
             ("01", "Documento con inconsistencias"),
@@ -227,9 +232,9 @@ class AccountInvoice(models.Model):
 
     _sql_constraints = [
         (
-            "supplier_uuid_unique",
-            "unique(supplier_uuid)",
-            _("The Supplier CUFE must be unique"),
+            "l10n_co_uuid_unique",
+            "unique(l10n_co_uuid)",
+            _("The CUFE/CUDE/CUDS must be unique."),
         )
     ]
 
@@ -572,53 +577,59 @@ class AccountInvoice(models.Model):
 
         return True
 
-    @api.onchange("supplier_uuid")
-    def _onchange_supplier_uuid(self):
-        if self.supplier_uuid and self.invoice_type_code == "05":
+    @api.onchange("l10n_co_uuid")
+    def _onchange_l10n_co_uuid(self):
+        if (
+            not self.sequence_resolution_id
+            and self.l10n_co_uuid
+            and self.invoice_type_code == "05"
+        ):
             self.invoice_type_code = "01"
 
     @api.multi
     def action_ApplicationResponse_030(self):
         for invoice_id in self:
-            invoice_id.action_GetXmlByDocumentKey(False)
-            invoice_id.set_edi_document("030")
-
-        return True
+            if invoice_id.action_GetXmlByDocumentKey(False):
+                invoice_id.set_edi_document("030")
 
     @api.multi
     def action_ApplicationResponse_031(self):
         for invoice_id in self:
             invoice_id.set_edi_document("031")
 
-        return True
-
     @api.multi
     def action_ApplicationResponse_032(self):
         for invoice_id in self:
             invoice_id.set_edi_document("032")
 
-        return True
-
     @api.multi
     def action_ApplicationResponse_033(self):
-        for invoice_id in self:
-            invoice_id.set_edi_document("033")
+        msg = _("More than 3 days have passed since the Goods and/or Services Receipt")
 
-        return True
+        for invoice_id in self:
+            effective_date = invoice_id.action_GetStatusEvent()
+
+            if invoice_id.dian_document_state == "goods_services_receipt":
+                effective_date = datetime.strptime(effective_date, "%Y-%m-%d").date()
+                today_date = fields.Date.today()
+                days = (today_date - effective_date).days
+
+                if days <= 3:
+                    invoice_id.set_edi_document("033")
+                else:
+                    raise UserError(msg)
 
     @api.multi
     def action_ApplicationResponse_034(self):
         for invoice_id in self:
             invoice_id.set_edi_document("034")
 
-        return True
-
     def action_GetXmlByDocumentKey(self, attachment=True):
         wsdl = DIAN_URL["wsdl" + self.company_id.profile_execution_id]
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
         )
-        xml_soap_values["trackId"] = self.uuid or self.supplier_uuid
+        xml_soap_values["trackId"] = self.l10n_co_uuid
         xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
             global_functions.get_template_xml(xml_soap_values, "GetXmlByDocumentKey"),
@@ -631,9 +642,6 @@ class AccountInvoice(models.Model):
         for attempt in range(3):
             try:
                 b = "http://schemas.datacontract.org/2004/07/EventResponse"
-                cac = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-                cbc = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-                msg = _("Invalid CUFE/CUDE.")
                 XmlBytesBase64 = False
                 response = post(
                     url=wsdl,
@@ -655,13 +663,13 @@ class AccountInvoice(models.Model):
                         status_code = element.text
 
                     if status_code != "100":
-                        continue
+                        raise UserError(_(MSG_UUID))
 
                     for element in root.iter("{%s}XmlBytesBase64" % b):
                         XmlBytesBase64 = element.text
 
                     if not XmlBytesBase64:
-                        raise UserError(msg)
+                        raise UserError(_(MSG_UUID))
 
                     if attachment:
                         self.env["ir.attachment"].create(
@@ -678,12 +686,16 @@ class AccountInvoice(models.Model):
                     else:
                         xml = etree.fromstring(b64decode(XmlBytesBase64))
 
-                        for element in xml.iter("{%s}PaymentMeans" % cac):
-                            for subelement in element.iter("{%s}ID" % cbc):
-                                if subelement.text != "2":
-                                    self.write(
-                                        {"dian_document_state": "dian_acceptance_cash"}
-                                    )
+                        for element in xml.iter("{%s}PaymentMeans" % XMLNS["cac"]):
+                            for subelement in element.iter("{%s}ID" % XMLNS["cbc"]):
+                                if subelement.text == "2":
+                                    return True
+
+                                self.write(
+                                    {"dian_document_state": "dian_acceptance_cash"}
+                                )
+
+                    return False
                 else:
                     raise ValidationError(
                         _(MSG_ERROR1) % (response.status_code, response.reason)
@@ -705,7 +717,7 @@ class AccountInvoice(models.Model):
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
         )
-        xml_soap_values["trackId"] = self.uuid or self.supplier_uuid
+        xml_soap_values["trackId"] = self.l10n_co_uuid
         xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
             global_functions.get_template_xml(xml_soap_values, "GetStatus"),
@@ -717,7 +729,6 @@ class AccountInvoice(models.Model):
 
         for attempt in range(3):
             try:
-                b = "http://schemas.datacontract.org/2004/07/DianResponse"
                 response = post(
                     url=wsdl,
                     headers={
@@ -734,24 +745,120 @@ class AccountInvoice(models.Model):
                     status_code = "other"
                     root = etree.fromstring(response.content)
 
-                    for element in root.iter("{%s}StatusCode" % b):
+                    for element in root.iter("{%s}StatusCode" % XMLNS["b"]):
                         status_code = element.text
 
                     if status_code == "00":
-                        for element in root.iter("{%s}XmlBase64Bytes" % b):
-                            self.env["ir.attachment"].create(
-                                {
-                                    "name": "ar" + xml_soap_values["trackId"] + ".xml",
-                                    "datas_fname": "ar"
-                                    + xml_soap_values["trackId"]
-                                    + ".xml",
-                                    "type": "binary",
-                                    "datas": element.text,
-                                    "res_model": self._name,
-                                    "res_id": self.id,
-                                    "mimetype": "application/xml",
-                                }
-                            )
+                        raise UserError(_(MSG_UUID))
+
+                    for element in root.iter("{%s}XmlBase64Bytes" % XMLNS["b"]):
+                        self.env["ir.attachment"].create(
+                            {
+                                "name": "ar" + xml_soap_values["trackId"] + ".xml",
+                                "datas_fname": "ar"
+                                + xml_soap_values["trackId"]
+                                + ".xml",
+                                "type": "binary",
+                                "datas": element.text,
+                                "res_model": self._name,
+                                "res_id": self.id,
+                                "mimetype": "application/xml",
+                            }
+                        )
+                else:
+                    raise ValidationError(
+                        _(MSG_ERROR1) % (response.status_code, response.reason)
+                    )
+
+                break
+            except exceptions.Timeout:
+                if attempt < 2:
+                    timeout += 10
+
+                    continue
+                else:
+                    raise ValidationError(_(MSG_TIMEOUT))
+            except exceptions.RequestException as e:
+                raise ValidationError(_(MSG_ERROR2) % (e))
+
+    def action_GetStatusEvent(self):
+        wsdl = DIAN_URL["wsdl" + self.company_id.profile_execution_id]
+        xml_soap_values = global_functions.get_xml_soap_values(
+            self.company_id.certificate_file, self.company_id.certificate_password
+        )
+        xml_soap_values["trackId"] = self.l10n_co_uuid
+        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
+        xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
+            global_functions.get_template_xml(xml_soap_values, "GetStatusEvent"),
+            xml_soap_values["Id"],
+            self.company_id.certificate_file,
+            self.company_id.certificate_password,
+        )
+        timeout = 10
+
+        for attempt in range(3):
+            try:
+                XmlBase64Bytes = False
+                dian_document_state = False
+                response_code = False
+                effective_date = False
+                response = post(
+                    url=wsdl,
+                    headers={
+                        "Content-Type": "application/soap+xml",
+                        "accept": "*/*",
+                        "accept-encoding": "gzip, deflate",
+                        "action": "http://wcf.dian.colombia/IWcfDianCustomerServices/GetStatusEvent",
+                    },
+                    data=etree.tostring(xml_soap_with_signature),
+                    timeout=timeout,
+                )
+
+                if response.status_code == 200:
+                    status_code = "other"
+                    root = etree.fromstring(response.content)
+
+                    for element in root.iter("{%s}StatusCode" % XMLNS["b"]):
+                        status_code = element.text
+
+                    if status_code != "00":
+                        raise UserError(_(MSG_UUID))
+
+                    for element in root.iter("{%s}XmlBase64Bytes" % XMLNS["b"]):
+                        XmlBase64Bytes = element.text
+
+                    if not XmlBase64Bytes:
+                        raise UserError(_(MSG_UUID))
+
+                    xml = etree.fromstring(b64decode(XmlBase64Bytes))
+
+                    for element in xml.iter("{%s}DocumentResponse" % XMLNS["cac"]):
+                        for element in element.iter("{%s}Response" % XMLNS["cac"]):
+                            for subelement in element.iter(
+                                "{%s}ResponseCode" % XMLNS["cbc"]
+                            ):
+                                response_code = subelement.text
+
+                            for subelement in element.iter(
+                                "{%s}EffectiveDate" % XMLNS["cbc"]
+                            ):
+                                effective_date = subelement.text
+
+                    if response_code == "034":
+                        dian_document_state = "tacit_acceptance"
+                    elif response_code == "033":
+                        dian_document_state = "express_acceptance"
+                    elif response_code == "032":
+                        dian_document_state = "goods_services_receipt"
+                    elif response_code == "031":
+                        dian_document_state = "e-invoice_claim"
+                    elif response_code == "030":
+                        dian_document_state = "e-invoice_receipt"
+
+                    if dian_document_state:
+                        self.write({"dian_document_state": dian_document_state})
+
+                    return effective_date
                 else:
                     raise ValidationError(
                         _(MSG_ERROR1) % (response.status_code, response.reason)
@@ -775,7 +882,7 @@ class AccountInvoice(models.Model):
         for invoice_id in self:
             if invoice_id.sequence_resolution_id:
                 invoice_id.set_edi_document()
-            elif invoice_id.supplier_uuid:
+            elif invoice_id.l10n_co_uuid:
                 invoice_id.action_ApplicationResponse_030()
 
         return res

@@ -10,11 +10,11 @@ from odoo import api, models, fields, _
 from odoo.exceptions import ValidationError
 
 ssl._create_default_https_context = ssl._create_unverified_context
-MSG_TIMEOUT = "DIAN service generates a timeout error."
-MSG_ERROR1 = (
+MSG_TIMEOUT = _("DIAN service generates a timeout error.")
+MSG_ERROR1 = _(
     "Unknown Error,\n\nStatus Code: %s,\nReason: %s\n\nContact with your administrator."
 )
-MSG_ERROR2 = "Unknown Error,\n\n%s\n\nContact with your administrator."
+MSG_ERROR2 = _("Unknown Error,\n\n%s\n\nContact with your administrator.")
 
 
 class ResCompany(models.Model):

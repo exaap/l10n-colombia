@@ -10,10 +10,15 @@ class AccountInvoice(models.Model):
     def _compute_payment_mean(self):
         payment_mean = "1"
 
-        if self.date_invoice and self.date_due and self.date_invoice != self.date_due:
-            payment_mean = "2"
+        for invoice_id in self:
+            if (
+                invoice_id.date_invoice
+                and invoice_id.date_due
+                and invoice_id.date_invoice != invoice_id.date_due
+            ):
+                payment_mean = "2"
 
-        self.payment_mean = payment_mean
+            invoice_id.payment_mean = payment_mean
 
     payment_mean = fields.Selection(
         selection=[("1", "Cash"), ("2", "Credit")],
@@ -44,6 +49,6 @@ class AccountInvoice(models.Model):
         res = super(AccountInvoice, self).create(vals)
 
         for invoice in res:
-            invoice._onchange_payment_term()
+            invoice._onchange_payment_term_id()
 
         return res
