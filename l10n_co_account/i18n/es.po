@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 12.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-25 22:43+0000\n"
-"PO-Revision-Date: 2025-08-25 22:43+0000\n"
+"POT-Creation-Date: 2025-09-17 16:28+0000\n"
+"PO-Revision-Date: 2025-09-17 16:28+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -104,6 +104,10 @@ msgstr "Bookentry Débito"
 
 #. module: l10n_co_account
 #: selection:account.invoice,payment_mean:0
+msgid "Cash"
+msgstr "Contado"
+
+#. module: l10n_co_account
 #: model:account.payment.mean.code,name:l10n_co_account.account_payment_mean_code_010
 msgid "Cash"
 msgstr "Efectivo"
@@ -294,6 +298,12 @@ msgstr "Transferencia de Débito"
 #: model:ir.model.fields,field_description:l10n_co_account.field_account_payment_mean_code__display_name
 msgid "Display Name"
 msgstr "Nombre mostrado"
+
+#. module: l10n_co_account
+#: code:addons/l10n_co_account/models/res_partner.py:135
+#, python-format
+msgid "ERROR: %s"
+msgstr ""
 
 #. module: l10n_co_account
 #: model:ir.model,name:l10n_co_account.model_account_fiscal_position
@@ -621,18 +631,30 @@ msgid "Tax Detail"
 msgstr "Detalle tributario"
 
 #. module: l10n_co_account
-#: code:addons/l10n_co_account/models/res_partner_industry.py:20
+#: code:addons/l10n_co_account/models/res_partner.py:102
+#, python-format
+msgid "The area code for number %s is incorrect. Area code: %s"
+msgstr "El código de área del número %s es incorrecto. Código de área: %s"
+
+#. module: l10n_co_account
 #: sql_constraint:res.partner.industry:0
+#: code:addons/l10n_co_account/models/res_partner_industry.py:20
 #, python-format
 msgid "The code must be unique!"
 msgstr "¡El código debe ser único!"
 
 #. module: l10n_co_account
-#: code:addons/l10n_co_account/models/account_payment_mean_code.py:18
 #: sql_constraint:account.payment.mean.code:0
+#: code:addons/l10n_co_account/models/account_payment_mean_code.py:18
 #, python-format
 msgid "The combination of code and name must be unique"
 msgstr "La combinación de código y nombre debe ser única"
+
+#. module: l10n_co_account
+#: code:addons/l10n_co_account/models/res_partner.py:103
+#, python-format
+msgid "The number %s is invalid. E.g.: 3001234567 or 6041234567"
+msgstr "El número %s no es válido. Por ejemplo: 3001234567 o 6041234567"
 
 #. module: l10n_co_account
 #: model:ir.model.fields,help:l10n_co_account.field_res_partner__l10n_latam_identification_type_id

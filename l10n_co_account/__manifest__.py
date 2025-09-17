@@ -12,6 +12,7 @@
     "website": "https://github.com/OCA/l10n-colombia",
     "depends": [
         "l10n_co",
+        "l10n_co_base_location",
         "account_debitnote",
         "account_invoice_refund_reason",
         "account_tax_group_type",

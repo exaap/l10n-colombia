@@ -192,7 +192,7 @@ class ResPartner(models.Model):
             "CountryIdentificationCode": self.country_id.code,
             "CountryName": self.country_id.name_dian,
             "Telephone": telephone,
-            "Telefax": self.fax,
+            "Telefax": False,
             "ElectronicMail": self.einvoicing_email,
         }
 

@@ -748,7 +748,7 @@ class AccountInvoice(models.Model):
                     for element in root.iter("{%s}StatusCode" % XMLNS["b"]):
                         status_code = element.text
 
-                    if status_code == "00":
+                    if status_code != "00":
                         raise UserError(_(MSG_UUID))
 
                     for element in root.iter("{%s}XmlBase64Bytes" % XMLNS["b"]):

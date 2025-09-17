@@ -1,7 +1,9 @@
 # Copyright 2024 Joan Marín <Github@JoanMarin>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl-3.0).
 
-from odoo import api, fields, models
+import phonenumbers
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 class ResPartner(models.Model):
@@ -95,3 +97,51 @@ class ResPartner(models.Model):
             ] + args
 
         return self.search(args, limit=limit).name_get()
+
+    def l10n_co_format_number(self):
+        msg1 = _("The area code for number %s is incorrect. Area code: %s")
+        msg2 = _("The number %s is invalid. E.g.: 3001234567 or 6041234567")
+
+        for partner_id in self:
+            if partner_id.country_id.code != "CO":
+                continue
+
+            for field in ["phone", "mobile"]:
+                number = getattr(partner_id, field)
+
+                if not number:
+                    continue
+
+                if field == "phone":
+                    phone_code = "60" + partner_id.state_id.phone_code
+
+                    if len(number) == 7:
+                        number = phone_code + number
+                    elif phone_code != number[:3]:
+                        raise ValidationError(msg1 % (number, phone_code))
+
+                try:
+                    parse_number = phonenumbers.parse(number, "CO")
+
+                    if not phonenumbers.is_valid_number(parse_number):
+                        raise ValidationError(msg2 % number)
+
+                    number = phonenumbers.format_number(
+                        parse_number, phonenumbers.PhoneNumberFormat.NATIONAL
+                    )
+                    number = number.replace(" ", "").replace("-", "")
+                    number = number.replace("(", "").replace(")", "")
+                except phonenumbers.NumberParseException as e:
+                    raise ValidationError(_("ERROR: %s") % e)
+
+                partner_id.with_context(no_edit=True).write({field: number})
+
+    def write(self, vals):
+        res = super(ResPartner, self).write(vals)
+
+        if not self._context.get("no_edit") and (
+            vals.get("phone") or vals.get("mobile")
+        ):
+            self.l10n_co_format_number()
+
+        return res

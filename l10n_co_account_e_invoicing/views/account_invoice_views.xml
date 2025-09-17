@@ -45,10 +45,10 @@
                     groups="l10n_co_account_e_invoicing.group_view_dian_documents">
                     <group>
                         <group>
-                            <field name="l10n_co_uuid"/>
+                            <field name="l10n_co_uuid" attrs="{'readonly': [('dian_document_state', '!=', False)]}"/>
                         </group>
                     </group>
-                    <group>
+                    <group attrs="{'invisible': [('l10n_co_uuid', '=', False)]}">
                         <group>
                             <label for="dian_document_state"/>
                             <div>
@@ -57,14 +57,11 @@
                                     type="object" class="oe_stat_button" icon="fa-check"
                                     attrs="{'invisible': [('dian_document_state', '!=', 'goods_services_receipt')]}"/>
                                 <button name="action_GetXmlByDocumentKey" string="GetXmlByDocumentKey"
-                                    type="object" class="oe_stat_button" icon="fa-check"
-                                    attrs="{'invisible': [('l10n_co_uuid', '=', False)]}"/>
+                                    type="object" class="oe_stat_button" icon="fa-check"/>
                                 <button name="action_GetStatus" string="GetStatus" type="object"
-                                    class="oe_stat_button" icon="fa-check"
-                                    attrs="{'invisible': [('l10n_co_uuid', '=', False)]}"/>
+                                    class="oe_stat_button" icon="fa-check"/>
                                 <button name="action_GetStatusEvent" string="GetStatusEvent" type="object"
-                                    class="oe_stat_button" icon="fa-check"
-                                    attrs="{'invisible': [('l10n_co_uuid', '=', False)]}"/>
+                                    class="oe_stat_button" icon="fa-check"/>
                             </div>
                         </group>
                     </group>
@@ -135,23 +132,19 @@
                 <page name="dian_documents" string="DIAN Documents"
                     attrs="{'invisible': [('sequence_resolution_id', '=', False), ('type', '=', 'in_refund')]}"
                     groups="l10n_co_account_e_invoicing.group_view_dian_documents">
-                    <group attrs="{'invisible': [('sequence_resolution_id', '!=', False)]}">
+                    <group>
                         <group>
-                            <field name="l10n_co_uuid"
-                                attrs="{'invisible': [('reference', '=', False)]}"/>
+                            <field name="l10n_co_uuid" attrs="{'readonly': [('dian_document_state', '!=', False)]}"/>
                         </group>
                     </group>
-                    <group attrs="{'invisible': [('sequence_resolution_id', '!=', False)]}">
+                    <group attrs="{'invisible': [('l10n_co_uuid', '=', False)]}">
                         <group>
                             <label for="dian_document_state"/>
                             <div>
                                 <field name="dian_document_state" readonly="1"/>
                                 <button name="action_ApplicationResponse_030" string="E-invoice Receipt"
                                     type="object" class="oe_stat_button" icon="fa-check"
-                                    attrs="{'invisible': ['|', ('l10n_co_uuid', '=', False), ('dian_document_state', '!=', False)]}"/>
-                                <button name="action_ApplicationResponse_031" string="E-invoice Claim"
-                                    type="object" class="oe_stat_button" icon="fa-times"
-                                    attrs="{'invisible': [('dian_document_state', '!=', 'goods_services_receipt')]}"/>
+                                    attrs="{'invisible': ['|', ('dian_document_state', '!=', False), ('reference', '=', False)]}"/>
                                 <button name="action_ApplicationResponse_032"
                                     string="Goods and/or Services Receipt" type="object" class="oe_stat_button"
                                     icon="fa-check"
@@ -160,21 +153,23 @@
                                     type="object" class="oe_stat_button" icon="fa-check"
                                     attrs="{'invisible': [('dian_document_state', '!=', 'goods_services_receipt')]}"/>
                                 <button name="action_GetXmlByDocumentKey" string="GetXmlByDocumentKey"
-                                    type="object" class="oe_stat_button" icon="fa-check"
-                                    attrs="{'invisible': [('l10n_co_uuid', '=', False)]}"/>
+                                    type="object" class="oe_stat_button" icon="fa-check"/>
                                 <button name="action_GetStatus" string="GetStatus" type="object"
-                                    class="oe_stat_button" icon="fa-check"
-                                    attrs="{'invisible': [('l10n_co_uuid', '=', False)]}"/>
+                                    class="oe_stat_button" icon="fa-check"/>
                                 <button name="action_GetStatusEvent" string="GetStatusEvent" type="object"
-                                    class="oe_stat_button" icon="fa-check"
-                                    attrs="{'invisible': [('l10n_co_uuid', '=', False)]}"/>
+                                    class="oe_stat_button" icon="fa-check"/>
                             </div>
                         </group>
-                        <group>
-                            <field name="dian_claim"
-                                attrs="{
-                                    'invisible': [('dian_document_state', 'not in', ('goods_services_receipt', 'e-invoice_claim'))],
-                                    'readonly': [('dian_document_state', '=', 'e-invoice_claim')]}"/>
+                        <group
+                            attrs="{'invisible': [('dian_document_state', 'not in', ('goods_services_receipt', 'e-invoice_claim'))]}">
+                            <label for="dian_claim"/>
+                            <div>
+                                <field name="dian_claim"
+                                    attrs="{'readonly': [('dian_document_state', '=', 'e-invoice_claim')]}"/>
+                                <button name="action_ApplicationResponse_031" string="E-invoice Claim"
+                                    type="object" class="oe_stat_button" icon="fa-times"
+                                    attrs="{'invisible': ['|', ('dian_document_state', '!=', 'goods_services_receipt'), ('dian_claim', '=', False)]}"/>
+                            </div>
                         </group>
                     </group>
                     <group>
