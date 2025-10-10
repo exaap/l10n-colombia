@@ -653,6 +653,12 @@ msgstr "La combinación de código y nombre debe ser única"
 #. module: l10n_co_account
 #: code:addons/l10n_co_account/models/res_partner.py:103
 #, python-format
+msgid "The mobile number %s is not valid"
+msgstr "El número de móvil %s no es válido."
+
+#. module: l10n_co_account
+#: code:addons/l10n_co_account/models/res_partner.py:104
+#, python-format
 msgid "The number %s is invalid. E.g.: 3001234567 or 6041234567"
 msgstr "El número %s no es válido. Por ejemplo: 3001234567 o 6041234567"
 
