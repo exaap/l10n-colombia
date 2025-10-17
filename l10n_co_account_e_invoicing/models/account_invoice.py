@@ -214,7 +214,7 @@ class AccountInvoice(models.Model):
         copy=False,
     )
     dian_document_mail_subject = fields.Char(string="Mail Subject", copy=False)
-    l10n_co_uuid = fields.Char(string="CUFE/CUDE/CUDS")
+    l10n_co_uuid = fields.Char(string="CUFE/CUDE/CUDS", copy=False)
     dian_claim = fields.Selection(
         selection=[
             ("01", "Documento con inconsistencias"),
@@ -223,6 +223,7 @@ class AccountInvoice(models.Model):
             ("04", "Servicio no prestado"),
         ],
         string="DIAN Claim",
+        copy=False,
     )
     dian_document_ids = fields.One2many(
         comodel_name="account.invoice.dian.document",

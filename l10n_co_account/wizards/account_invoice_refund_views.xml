@@ -4,6 +4,11 @@
         <field name="model">account.invoice.refund</field>
         <field name="inherit_id" ref="account_invoice_refund_reason.extended_view_account_invoice_refund"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='description']" position="attributes">
+                <attribute name="invisible">0</attribute>
+                <attribute name="required">1</attribute>
+            </xpath>
+
             <xpath expr="//field[@name='reason_id']" position="attributes">
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
             </xpath>

@@ -36,5 +36,7 @@ class AccountInvoiceDebitnote(models.TransientModel):
 
             if invoice_id:
                 invoice_id.reason_id = self.reason_id.id
+                debit_invoice_id = invoice_id.debit_invoice_id
+                invoice_id.partner_shipping_id = debit_invoice_id.partner_shipping_id.id
 
         return res
