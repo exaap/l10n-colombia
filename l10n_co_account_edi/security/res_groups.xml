@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="res.groups" id="group_view_einvoicing_email_fields">
+        <field name="name">View 'E-Invoicing Email' Fields</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+    <record model="res.groups" id="group_edit_is_einvoicing_agent_field">
+        <field name="name">Edit 'Is an E-Invoicing Agent?' Field</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+    <record model="res.groups" id="group_view_operation_type_field">
+        <field name="name">View 'Operation Type' Field</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+    <record model="res.groups" id="group_view_invoice_type_field">
+        <field name="name">View 'Invoice Type' Field</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+    <record model="res.groups" id="group_send_invoice_dian_field">
+        <field name="name">View 'Send Invoice to DIAN?' Field</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+    <record model="res.groups" id="group_view_dian_documents">
+        <field name="name">View DIAN Documents</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+    <record model="res.groups" id="group_delete_dian_documents">
+        <field name="name">Delete DIAN Documents</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+    <record model="res.groups" id="group_view_einvoicing_setting_product">
+        <field name="name">View E-Invoicing Setting of the Product</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+    <record model="res.groups" id="group_allow_cancel_invoices">
+        <field name="name">Allow Cancel Invoices</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="category_id" ref="base.module_category_localization"/>
+    </record>
+</odoo>

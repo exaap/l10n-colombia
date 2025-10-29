@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl-3.0).
 
 {
-    "name": "Colombian Data Districts",
+    "name": "Colombian Stock E-Invoicing",
     "version": "12.0.1.0.0",
     "category": "Localization",
     "author": "EXA Auto Parts Github@exaap, "
@@ -11,11 +11,11 @@
     "maintainers": ["joanmarin"],
     "website": "https://github.com/OCA/l10n-colombia",
     "depends": [
-        "base_location_district",
-        "l10n_co_base_location",
+        "l10n_co_account_edi",
+        "sale_stock",
     ],
     "data": [
-        "data/res.city.zip.district.csv",
+        "data/account_incoterms_data.xml",
     ],
     "installable": True,
     "license": "AGPL-3",

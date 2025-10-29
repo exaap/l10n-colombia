@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <record id="account_invoice_dian_document_view_tree" model="ir.ui.view">
+        <field name="model">account.invoice.dian.document</field>
+        <field name="arch" type="xml">
+            <tree string="DIAN Documents" default_order="zipped_filename" decoration-info="state=='draft'" decoration-muted="state=='cancel'">
+                <field name="invoice_id"/>
+                <field name="cufe_cude"/>
+                <field name="create_date"/>
+                <field name="zipped_filename"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="account_invoice_dian_document_view_form" model="ir.ui.view">
+        <field name="model">account.invoice.dian.document</field>
+        <field name="arch" type="xml">
+            <form string="DIAN Document">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,done,cancel"/>
+                    <button name="action_set_files"
+                        string="Set Files"
+                        type="object"
+                        states="draft,sent"
+                        class="btn-primary"
+                        attrs="{'invisible': ['|', '|',
+                                ('xml_file', '=', False),
+                                ('zipped_file', '=', False),
+                                ('state', 'not in', ('draft', 'sent'))]}"/>
+                    <button name="action_send_zipped_file"
+                        string="Send Zipped File"
+                        type="object"
+                        class="btn-primary"
+                        attrs="{'invisible': ['|', '|',
+                                ('xml_file', '=', False),
+                                ('zipped_file', '=', False),
+                                ('state', 'in', ('done', 'cancel'))]}"/>
+                    <button name="action_GetStatusZip"
+                        string="GetStatusZip"
+                        type="object"
+                        class="btn-primary"
+                        attrs="{'invisible': [('zip_key', '=', False)]}"/>
+                    <button name="action_GetStatus_without_send_email"
+                        string="GetStatus without Send E-Mail"
+                        type="object"
+                        class="btn-primary"
+                        attrs="{'invisible': ['|', '|',
+                                ('cufe_cude', '=', False),
+                                ('xml_file', '=', False),
+                                ('state', 'in', ('cancel'))]}"/>
+                    <button name="action_set_ad_zipped_file"
+                        string="Set AttachedDocument Zipped File"
+                        type="object"
+                        class="btn-primary"
+                        attrs="{'invisible': [('ar_xml_file', '=', False)]}"/>
+                    <button name="action_process"
+                        string="Process"
+                        type="object"
+                        class="btn-primary"
+                        attrs="{'invisible': ['|', '|',
+                                ('xml_file', '=', False),
+                                ('zipped_file', '=', False),
+                                ('state', 'in', ('done', 'cancel'))]}"/>
+                    <button name="action_send_email"
+                        string="Send E-Mail"
+                        type="object"
+                        class="btn-primary"
+                        attrs="{'invisible': ['|', ('ar_xml_file', '=', False), ('mail_sent', '=', True)]}"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Invoice">
+                            <field name="invoice_id" readonly="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="profile_execution_id" readonly="1" invisible="1"/>
+                            <field name="invoice_url" widget="url" readonly="1"/>
+                        </group>
+                        <group string="Files">
+                            <field name="xml_filename" invisible="1"/>
+                            <field name="xml_file" widget="binary" filename="xml_filename" readonly="1"/>
+                            <field name="zipped_filename" invisible="1"/>
+                            <field name="zipped_file" widget="binary" filename="zipped_filename" readonly="1"/>
+                            <field name="ar_xml_filename" invisible="1"/>
+                            <field name="ar_xml_file" widget="binary" filename="ar_xml_filename" readonly="1"/>
+                            <field name="validation_datetime" readonly="1"/>
+                            <field name="ad_zipped_filename" invisible="1"/>
+                            <field name="ad_zipped_file" widget="binary" filename="ad_zipped_filename" readonly="1"/>
+                            <field name="mail_sent"/>
+                        </group>
+                        <group string="Codes">
+                            <field name="issue_datetime" readonly="1"/>
+                            <field name="application_response_type" readonly="1"/>
+                            <field name="cufe_cude_uncoded" readonly="1"/>
+                            <field name="cufe_cude" readonly="1"/>
+                            <field name="software_security_code_uncoded" readonly="1"/>
+                            <field name="software_security_code" readonly="1"/>
+                            <field name="zip_key" readonly="1" attrs="{'invisible': [('profile_execution_id', '=', '1')]}"/>
+                        </group>
+                    </group>
+                    <group string="GetStatus">
+                        <field name="get_status_zip_status_code" readonly="1"/>
+                        <field name="get_status_zip_response" readonly="1"/>
+                    </group>
+                    <notebook colspan="4">
+                        <page string="DIAN Document Lines">
+                            <group>
+                                <field name="dian_document_line_ids" mode="tree" readonly="1">
+                                    <tree>
+                                        <field name="create_date"/>
+                                        <field name="send_async_status_code"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="account_invoice_dian_document_action" model="ir.actions.act_window">
+        <field name="name">DIAN Documents</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.invoice.dian.document</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="account_invoice_dian_document_menu" name="DIAN Documents" action="account_invoice_dian_document_action" parent="account.menu_finance_receivables" groups="l10n_co_account_edi.group_view_dian_documents" sequence="2"/>
+
+</odoo>

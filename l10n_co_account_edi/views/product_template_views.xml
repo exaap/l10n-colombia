@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view" model="ir.ui.view">
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']" position="after">
+                <page name="einvoicing" string="E-Invoicing" groups="l10n_co_account_edi.group_view_einvoicing_setting_product">
+                    <group>
+                        <group>
+                            <field name="margin_percentage"/>
+                            <field name="reference_price"/>
+                        </group>
+                        <group>
+                            <field name="product_scheme_id" required="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="email_template_for_einvoice" model="mail.template">
+        <field name="name">Electronic Invoice - Send by Email</field>
+        <field name="email_from">${object.company_id.einvoicing_email}</field>
+        <field name="reply_to">${object.company_id.einvoicing_email}</field>
+        <field name="subject">${object.invoice_id.dian_document_mail_subject}</field>
+        <field name="email_to">${(object.invoice_id.partner_id.einvoicing_email) or
+            (object.company_id.einvoicing_partner_no_email)}${',' +
+            object.company_id.einvoicing_receives_all_emails if
+            object.company_id.einvoicing_receives_all_emails else ''}</field>
+        <field name="model_id" ref="l10n_co_account_edi.model_account_invoice_dian_document"/>
+        <field name="auto_delete" eval="False"/>
+        <field name="notification" eval="True"/>
+        <field name="lang">${object.invoice_id.partner_id.lang}</field>
+        <field name="body_html"><![CDATA[<div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: #FFF;">
+            <p>Señor(es),</p>
+            <p>${object.invoice_id.partner_id.name}</p>
+
+            <br><br>
+
+            <p>Le informamos que ha recibido una factura, nota débito, nota crédito o documento electrónico de ${object.company_id.name}:</p>
+
+            <br><br>
+
+            <p>Número de la factura, nota débito, nota crédito o documento electrónico: <strong>${object.invoice_id.number}</strong></p>
+            <p>A nombre de: <strong>${object.invoice_id.partner_id.name}</strong></p>
+            <p>Valor Total: <strong>${object.invoice_id.amount_total} ${object.invoice_id.currency_id.name}</strong></p>
+
+            <br><br>
+
+            <p>Si tiene inquietud respecto a la información contenida en la factura, nota débito, nota crédito o documento electrónico, responda este correo electrónico.</p>
+
+            <br>
+
+            <p>Escriba a ${object.company_id.partner_id.einvoicing_email} si desea modificar sus datos para el envío de la factura, nota débito, nota crédito o documento electrónico.</p>
+
+            <br>
+
+            <p>Cordialmente,</p>
+
+            <br>
+
+            <p><strong>${object.company_id.name}</strong></p>
+        </div>]]></field>
+    </record>
+</odoo>

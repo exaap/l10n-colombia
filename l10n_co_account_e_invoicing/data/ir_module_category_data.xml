@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="category_einvoicing" model="ir.module.category">
-        <field name="name">E-Invoicing</field>
-    </record>
-</odoo>
