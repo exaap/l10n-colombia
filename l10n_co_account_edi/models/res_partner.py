@@ -12,7 +12,6 @@ TAX_DETAILS = {"01": "IVA", "04": "INC", "ZA": "IVA e INC", "ZZ": "No aplica"}
 class ResPartner(models.Model):
     _inherit = "res.partner"
 
-    send_zip_code = fields.Boolean(string="Send Zip Code?")
     is_einvoicing_agent = fields.Selection(
         selection=[
             ("yes", "Yes"),
@@ -176,9 +175,7 @@ class ResPartner(models.Model):
             "RegistrationName": partner_name,
             "AddressID": self.zip_id.city_id.code or "",
             "AddressCityName": (self.zip_id.city_id.name or (self.city or "")).title(),
-            "AddressPostalZone": (
-                self.zip_id.name if (self.send_zip_code and self.zip_id) else False
-            ),
+            "AddressPostalZone": self.zip_id.name if self.zip_id else False,
             "AddressCountrySubentity": self.state_id.name or "",
             "AddressCountrySubentityCode": self.state_id.code or "",
             "AddressLine": self.street or "",
@@ -200,7 +197,6 @@ class ResPartner(models.Model):
         msg1 = _("'%s' does not have a city established.")
         msg2 = _("'%s' does not have a state established.")
         msg3 = _("'%s' does not have a country established.")
-        zip_code = False
 
         if self.country_id:
             if self.country_id.code == "CO":
@@ -211,14 +207,10 @@ class ResPartner(models.Model):
         else:
             raise UserError(msg3 % self.name)
 
-        if self.send_zip_code:
-            if self.zip_id:
-                zip_code = self.zip_id.name
-
         return {
             "AddressID": self.zip_id.city_id.code or "",
             "AddressCityName": self.zip_id.city_id.name or (self.city or ""),
-            "AddressPostalZone": zip_code,
+            "AddressPostalZone": self.zip_id.name if self.zip_id else False,
             "AddressCountrySubentity": self.state_id.name or "",
             "AddressCountrySubentityCode": self.state_id.code or "",
             "AddressLine": self.street or "",

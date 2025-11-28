@@ -938,12 +938,6 @@ msgid "Send Invoice to DIAN?"
 msgstr ""
 
 #. module: l10n_co_account_edi
-#: model:ir.model.fields,field_description:l10n_co_account_edi.field_res_partner__send_zip_code
-#: model:ir.model.fields,field_description:l10n_co_account_edi.field_res_users__send_zip_code
-msgid "Send Zip Code?"
-msgstr ""
-
-#. module: l10n_co_account_edi
 #: model_terms:ir.ui.view,arch_db:l10n_co_account_edi.account_invoice_dian_document_view_form
 msgid "Send Zipped File"
 msgstr ""

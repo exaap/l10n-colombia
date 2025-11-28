@@ -5,7 +5,6 @@
 		<field name="inherit_id" ref="base.view_partner_form"/>
 		<field name="arch" type="xml">
 			<label for="street" position="before">
-				<field name="send_zip_code"/>
 				<field name="view_einvoicing_email_field" invisible="1"/>
 				<field name="edit_is_einvoicing_agent_field" invisible="1"/>
 				<field name="is_einvoicing_agent" attrs="{
