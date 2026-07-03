@@ -11,7 +11,6 @@ from . import date_range
 from . import einvoice_notification_group
 from . import ir_sequence_date_range
 from . import ir_sequence
-from . import mail_template
 from . import product_scheme
 from . import product_template
 from . import res_partner

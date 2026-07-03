@@ -46,9 +46,7 @@ class AccountInvoice(models.Model):
         view_operation_type_field = False
 
         if (
-            user_id.has_group(
-                "l10n_co_account_edi.group_view_operation_type_field"
-            )
+            user_id.has_group("l10n_co_account_edi.group_view_operation_type_field")
             and user_id.id != SUPERUSER_ID
         ):
             view_operation_type_field = True
@@ -71,9 +69,7 @@ class AccountInvoice(models.Model):
         view_invoice_type_field = False
 
         if (
-            user_id.has_group(
-                "l10n_co_account_edi.group_view_invoice_type_field"
-            )
+            user_id.has_group("l10n_co_account_edi.group_view_invoice_type_field")
             and user_id.id != SUPERUSER_ID
         ):
             view_invoice_type_field = True
@@ -625,7 +621,7 @@ class AccountInvoice(models.Model):
         for invoice_id in self:
             invoice_id.set_edi_document("034")
 
-    def action_GetXmlByDocumentKey(self, attachment=True):
+    def _GetXmlByDocumentKey(self):
         wsdl = DIAN_URL["wsdl" + self.company_id.profile_execution_id]
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
@@ -672,31 +668,7 @@ class AccountInvoice(models.Model):
                     if not XmlBytesBase64:
                         raise UserError(_(MSG_UUID))
 
-                    if attachment:
-                        self.env["ir.attachment"].create(
-                            {
-                                "name": xml_soap_values["trackId"] + ".xml",
-                                "datas_fname": xml_soap_values["trackId"] + ".xml",
-                                "type": "binary",
-                                "datas": XmlBytesBase64,
-                                "res_model": self._name,
-                                "res_id": self.id,
-                                "mimetype": "application/xml",
-                            }
-                        )
-                    else:
-                        xml = etree.fromstring(b64decode(XmlBytesBase64))
-
-                        for element in xml.iter("{%s}PaymentMeans" % XMLNS["cac"]):
-                            for subelement in element.iter("{%s}ID" % XMLNS["cbc"]):
-                                if subelement.text == "2":
-                                    return True
-
-                                self.write(
-                                    {"dian_document_state": "dian_acceptance_cash"}
-                                )
-
-                    return False
+                    return XmlBytesBase64
                 else:
                     raise ValidationError(
                         _(MSG_ERROR1) % (response.status_code, response.reason)
@@ -712,6 +684,32 @@ class AccountInvoice(models.Model):
                     raise ValidationError(_(MSG_TIMEOUT))
             except exceptions.RequestException as e:
                 raise ValidationError(_(MSG_ERROR2) % (e))
+
+    def action_GetXmlByDocumentKey(self, attachment=True):
+        XmlBytesBase64 = self._GetXmlByDocumentKey()
+
+        if attachment:
+            values = {
+                "name": self.l10n_co_uuid + ".xml",
+                "datas_fname": self.l10n_co_uuid + ".xml",
+                "type": "binary",
+                "datas": XmlBytesBase64,
+                "res_model": self._name,
+                "res_id": self.id,
+                "mimetype": "application/xml",
+            }
+            self.env["ir.attachment"].create(values)
+        else:
+            xml = etree.fromstring(b64decode(XmlBytesBase64))
+
+            for element in xml.iter("{%s}PaymentMeans" % XMLNS["cac"]):
+                for subelement in element.iter("{%s}ID" % XMLNS["cbc"]):
+                    if subelement.text == "2":
+                        return True
+
+                    self.write({"dian_document_state": "dian_acceptance_cash"})
+
+        return False
 
     def action_GetStatus(self):
         wsdl = DIAN_URL["wsdl" + self.company_id.profile_execution_id]
@@ -753,19 +751,16 @@ class AccountInvoice(models.Model):
                         raise UserError(_(MSG_UUID))
 
                     for element in root.iter("{%s}XmlBase64Bytes" % XMLNS["b"]):
-                        self.env["ir.attachment"].create(
-                            {
-                                "name": "ar" + xml_soap_values["trackId"] + ".xml",
-                                "datas_fname": "ar"
-                                + xml_soap_values["trackId"]
-                                + ".xml",
-                                "type": "binary",
-                                "datas": element.text,
-                                "res_model": self._name,
-                                "res_id": self.id,
-                                "mimetype": "application/xml",
-                            }
-                        )
+                        values = {
+                            "name": "ar" + xml_soap_values["trackId"] + ".xml",
+                            "datas_fname": "ar" + xml_soap_values["trackId"] + ".xml",
+                            "type": "binary",
+                            "datas": element.text,
+                            "res_model": self._name,
+                            "res_id": self.id,
+                            "mimetype": "application/xml",
+                        }
+                        self.env["ir.attachment"].create(values)
                 else:
                     raise ValidationError(
                         _(MSG_ERROR1) % (response.status_code, response.reason)

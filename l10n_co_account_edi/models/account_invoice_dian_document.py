@@ -155,14 +155,15 @@ class AccountInvoiceDianDocument(models.Model):
         store=False,
     )
     xml_filename = fields.Char(string="Invoice XML Filename")
-    xml_file = fields.Binary(string="Invoice XML File")
+    xml_file = fields.Binary(string="Invoice XML File", attachment=True)
     zipped_filename = fields.Char(string="Zipped Filename")
-    zipped_file = fields.Binary(string="Zipped File")
     ar_xml_filename = fields.Char(string="ApplicationResponse XML Filename")
-    ar_xml_file = fields.Binary(string="ApplicationResponse XML File")
+    ar_xml_file = fields.Binary(string="ApplicationResponse XML File", attachment=True)
     validation_datetime = fields.Datetime(string="Validation Datetime", default=False)
     ad_zipped_filename = fields.Char(string="AttachedDocument Zipped Filename")
-    ad_zipped_file = fields.Binary(string="AttachedDocument Zipped File")
+    ad_zipped_file = fields.Binary(
+        string="AttachedDocument Zipped File", attachment=True
+    )
     mail_sent = fields.Boolean(string="Mail Sent?")
     zip_key = fields.Char(string="ZipKey")
     get_status_zip_status_code = fields.Selection(
@@ -881,7 +882,6 @@ class AccountInvoiceDianDocument(models.Model):
 
         if xml_file:
             self.xml_file = xml_file
-            self.zipped_file = self._get_zipped_file()
         else:
             return xml_file
 
@@ -889,8 +889,7 @@ class AccountInvoiceDianDocument(models.Model):
 
     def _get_ad_xml_values(self):
         ProfileExecutionID = self.profile_execution_id
-        ad_zipped_filename = self.ad_zipped_filename
-        ID = ad_zipped_filename.replace(".zip", "")
+        ID = self.ad_zipped_filename.replace(".zip", "")
         to_zone = tz.gettz(timezone("America/Bogota").zone)
         issue_datetime = datetime.now(to_zone)  # .replace(hour=8, minute=0, second=0)
         IssueDate = issue_datetime.strftime("%Y-%m-%d")
@@ -927,7 +926,8 @@ class AccountInvoiceDianDocument(models.Model):
         UUID = self.cufe_cude
         sender = self.company_id.partner_id
         receiver = self.invoice_id.partner_id
-        Attachment = b64decode(self.xml_file).decode("utf-8")
+        XmlBytesBase64 = self.xml_file or self.invoice_id._GetXmlByDocumentKey()
+        Attachment = b64decode(XmlBytesBase64).decode("utf-8")
         DocumentReferenceID += ParentDocumentID
 
         if self.ar_xml_file:
@@ -965,8 +965,10 @@ class AccountInvoiceDianDocument(models.Model):
         )
 
     def _get_ad_zipped_file(self):
-        ad_zipped_filename = self.ad_zipped_filename
-        ad_xml_filename = ad_zipped_filename.replace(".zip", ".xml")
+        if not self.ad_zipped_filename:
+            self.ad_zipped_filename = "no_name.zip"
+
+        ad_xml_filename = self.ad_zipped_filename.replace(".zip", ".xml")
         output = BytesIO()
         zipfile = ZipFile(output, mode="w")
         zipfile_content = BytesIO()
@@ -1011,10 +1013,17 @@ class AccountInvoiceDianDocument(models.Model):
         self.invoice_id.write(
             {"dian_document_mail_subject": self._get_dian_document_mail_subject()}
         )
-        template_id = self.env.ref(
-            "l10n_co_account_edi.email_template_for_einvoice"
+        template_id = self.env.ref("l10n_co_account_edi.email_template_for_einvoice")
+        domain = [("res_model", "=", self._name), ("res_id", "=", self.id)]
+        domain += [("res_field", "=", "ad_zipped_file")]
+        attachment_id = self.env["ir.attachment"].search(domain)
+        vals = {"name": self.ad_zipped_filename, "datas_fname": self.ad_zipped_filename}
+        attachment_id.write(vals)
+        email_values = {}
+        email_values["attachment_ids"] = attachment_id.ids
+        mail_id = template_id.send_mail(
+            self.id, force_send=True, email_values=email_values
         )
-        mail_id = template_id.send_mail(self.id, force_send=True)
         mail_id = self.env["mail.mail"].browse(mail_id)
 
         if mail_id.state == "sent":
@@ -1219,7 +1228,9 @@ class AccountInvoiceDianDocument(models.Model):
             self.company_id.certificate_file, self.company_id.certificate_password
         )
         xml_soap_values["fileName"] = self.zipped_filename.replace(".zip", "")
-        xml_soap_values["contentFile"] = b64encode(self.zipped_file).decode("utf-8")
+        xml_soap_values["contentFile"] = b64encode(self._get_zipped_file()).decode(
+            "utf-8"
+        )
 
         if self.profile_execution_id == "1":
             service = "SendBillSync"
@@ -1288,7 +1299,9 @@ class AccountInvoiceDianDocument(models.Model):
         xml_soap_values = global_functions.get_xml_soap_values(
             self.company_id.certificate_file, self.company_id.certificate_password
         )
-        xml_soap_values["contentFile"] = b64encode(self.zipped_file).decode("utf-8")
+        xml_soap_values["contentFile"] = b64encode(self._get_zipped_file()).decode(
+            "utf-8"
+        )
         xml_soap_values["To"] = wsdl.replace("?wsdl", "")
         xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
             global_functions.get_template_xml(xml_soap_values, "SendEventUpdateStatus"),
@@ -1416,77 +1429,5 @@ class AccountInvoiceDianDocument(models.Model):
             self.send_failure_email()
 
             return False
-
-        return True
-
-    # TODO: 2.0
-    def action_SendBillAttachmentAsync(self):
-        b = "http://schemas.datacontract.org/2004/07/UploadDocumentResponse"
-        wsdl = DIAN_URL["wsdl" + self.profile_execution_id]
-        xml_soap_values = global_functions.get_xml_soap_values(
-            self.company_id.certificate_file, self.company_id.certificate_password
-        )
-        output = BytesIO()
-        zipfile = ZipFile(output, mode="w")
-        zipfile_content = BytesIO()
-        zipfile_content.write(b64decode(self.xml_file))
-        zipfile.writestr(self.xml_filename, zipfile_content.getvalue())
-        zipfile_content = BytesIO()
-        zipfile_content.write(b64decode(self.ar_xml_file))
-        zipfile.writestr(self.ar_xml_filename, zipfile_content.getvalue())
-        zipfile.close()
-        xml_soap_values["fileName"] = self.zipped_filename.replace(".zip", "")
-        xml_soap_values["contentFile"] = b64encode(output.getvalue()).decode("uft-8")
-        xml_soap_values["To"] = wsdl.replace("?wsdl", "")
-        xml_soap_with_signature = global_functions.get_xml_soap_with_signature(
-            global_functions.get_template_xml(
-                xml_soap_values, "SendBillAttachmentAsync"
-            ),
-            xml_soap_values["Id"],
-            self.company_id.certificate_file,
-            self.company_id.certificate_password,
-        )
-        timeout = 10
-
-        for attempt in range(3):
-            try:
-                response = post(
-                    url=wsdl,
-                    headers={"content-type": "application/soap+xml;charset=utf-8"},
-                    data=etree.tostring(xml_soap_with_signature),
-                    timeout=timeout,
-                )
-
-                if response.status_code == 200:
-                    self.write({"state": "sent"})
-                    root = etree.fromstring(response.text.encode("utf-8"))
-
-                    for element in root.iter("{%s}ZipKey" % b):
-                        self.write({"zip_key": element.text})
-                        self.action_GetStatusZip()
-                elif response.status_code in (403, 500, 503, 507, 508):
-                    self.env["account.invoice.dian.document.line"].create(
-                        {
-                            "dian_document_id": self.id,
-                            "send_async_status_code": response.status_code,
-                            "send_async_reason": response.reason,
-                            "send_async_response": response.text,
-                        }
-                    )
-                else:
-                    raise ValidationError(
-                        _(MSG_ERROR1) % (response.status_code, response.reason)
-                    )
-
-                break
-            except exceptions.Timeout:
-                if attempt < 2:
-                    timeout += 10
-
-                    continue
-                else:
-                    raise ValidationError(_(MSG_TIMEOUT))
-            except exceptions.RequestException as e:
-                raise ValidationError(_(MSG_ERROR2) % (e))
 
         return True

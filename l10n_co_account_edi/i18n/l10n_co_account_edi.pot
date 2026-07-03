@@ -587,11 +587,6 @@ msgid "Email"
 msgstr ""
 
 #. module: l10n_co_account_edi
-#: model:ir.model,name:l10n_co_account_edi.model_mail_template
-msgid "Email Templates"
-msgstr ""
-
-#. module: l10n_co_account_edi
 #: model:ir.model.fields,field_description:l10n_co_account_edi.field_res_company__einvoicing_receives_all_emails
 msgid "Email that receives all emails"
 msgstr ""

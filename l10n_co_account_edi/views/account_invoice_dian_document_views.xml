@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-
     <record id="account_invoice_dian_document_view_tree" model="ir.ui.view">
         <field name="model">account.invoice.dian.document</field>
         <field name="arch" type="xml">
-            <tree string="DIAN Documents" default_order="zipped_filename" decoration-info="state=='draft'" decoration-muted="state=='cancel'">
+            <tree string="DIAN Documents" default_order="zipped_filename" decoration-info="state=='draft'"
+                decoration-muted="state=='cancel'">
                 <field name="invoice_id"/>
                 <field name="cufe_cude"/>
                 <field name="create_date"/>
@@ -27,17 +26,15 @@
                         type="object"
                         states="draft,sent"
                         class="btn-primary"
-                        attrs="{'invisible': ['|', '|',
+                        attrs="{'invisible': ['|',
                                 ('xml_file', '=', False),
-                                ('zipped_file', '=', False),
                                 ('state', 'not in', ('draft', 'sent'))]}"/>
                     <button name="action_send_zipped_file"
                         string="Send Zipped File"
                         type="object"
                         class="btn-primary"
-                        attrs="{'invisible': ['|', '|',
+                        attrs="{'invisible': ['|',
                                 ('xml_file', '=', False),
-                                ('zipped_file', '=', False),
                                 ('state', 'in', ('done', 'cancel'))]}"/>
                     <button name="action_GetStatusZip"
                         string="GetStatusZip"
@@ -61,9 +58,8 @@
                         string="Process"
                         type="object"
                         class="btn-primary"
-                        attrs="{'invisible': ['|', '|',
+                        attrs="{'invisible': ['|',
                                 ('xml_file', '=', False),
-                                ('zipped_file', '=', False),
                                 ('state', 'in', ('done', 'cancel'))]}"/>
                     <button name="action_send_email"
                         string="Send E-Mail"
@@ -83,7 +79,6 @@
                             <field name="xml_filename" invisible="1"/>
                             <field name="xml_file" widget="binary" filename="xml_filename" readonly="1"/>
                             <field name="zipped_filename" invisible="1"/>
-                            <field name="zipped_file" widget="binary" filename="zipped_filename" readonly="1"/>
                             <field name="ar_xml_filename" invisible="1"/>
                             <field name="ar_xml_file" widget="binary" filename="ar_xml_filename" readonly="1"/>
                             <field name="validation_datetime" readonly="1"/>
@@ -98,7 +93,8 @@
                             <field name="cufe_cude" readonly="1"/>
                             <field name="software_security_code_uncoded" readonly="1"/>
                             <field name="software_security_code" readonly="1"/>
-                            <field name="zip_key" readonly="1" attrs="{'invisible': [('profile_execution_id', '=', '1')]}"/>
+                            <field name="zip_key" readonly="1"
+                                attrs="{'invisible': [('profile_execution_id', '=', '1')]}"/>
                         </group>
                     </group>
                     <group string="GetStatus">
@@ -130,6 +126,7 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <menuitem id="account_invoice_dian_document_menu" name="DIAN Documents" action="account_invoice_dian_document_action" parent="account.menu_finance_receivables" groups="l10n_co_account_edi.group_view_dian_documents" sequence="2"/>
-
+    <menuitem id="account_invoice_dian_document_menu" name="DIAN Documents"
+        action="account_invoice_dian_document_action" parent="account.menu_finance_receivables"
+        groups="l10n_co_account_edi.group_view_dian_documents" sequence="2"/>
 </odoo>
